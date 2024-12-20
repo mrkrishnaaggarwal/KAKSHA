@@ -26,11 +26,9 @@ function Navbar() {
     ];
 
     return (
-        <div className="w-[20%] h-full bg-gray-100 flex flex-col p-6">
+        <div className="w-[15%] h-full bg-gray-100 flex flex-col p-4 border-r-2 border-neutral-300">
             <div className="mb-3">
-                <h2 className="text-2xl font-bold">
-                    <Image className='mix-blend-multiply' src={logo} alt="logo" />
-                </h2>
+                <Image className='mix-blend-multiply' src={logo} alt="logo" />
             </div>
             <nav className="w-4/5 min-w-fit">
                 <ul>
@@ -51,12 +49,9 @@ function Navbar() {
                     })}
                 </ul>
             </nav>
-            <div className='flex flex-col justify-between flex-1 w-4/5 min-w-fit'>
+            <div className='flex flex-col justify-end flex-1 w-4/5 min-w-fit'>
                 <div>
-                    {/* yahan aur link dal denenge agar need hogi toh */}
-                </div>
-                <div>
-                    <Link href="/help" className={" mb-2 text-base  px-2 py-1 rounded-lg text-black hover:bg-gray-300 w-full flex items-center gap-2"}>
+                    <Link href="/help" className={"text-base  px-2 py-1 rounded-lg text-black hover:bg-gray-300 w-full flex items-center gap-2"}>
                         <IoHelpCircleOutline />Help
                     </Link>
                     <Link href="/logout" className={"text-base  px-2 py-1 rounded-lg text-red-600 w-full flex items-center gap-2 hover:bg-gray-300"}>
