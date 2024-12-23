@@ -3,7 +3,7 @@ function page() {
   return (
     <>
         <main className=''>
-          <h1>Hello from Attendence page </h1>
+          <h1>Hello from Classes page </h1>
         </main>
         
     </>
