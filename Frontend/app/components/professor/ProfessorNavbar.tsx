@@ -8,7 +8,7 @@ import { IoBarChartOutline, IoHelpCircleOutline, IoLogOutOutline } from 'react-i
 import { AiOutlineSchedule } from 'react-icons/ai';
 import { CiBookmarkCheck } from 'react-icons/ci';
 import { CgProfile } from 'react-icons/cg';
-import logo from '../../public/logo.jpg'; 
+import logo from '@/public/logo.jpg'
 
 
 function Navbar() {
