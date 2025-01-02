@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
-import '../../styles/Calender.css';
+import '@/app/styles/Calender.css';
 import Classes from './Classes';
 
 type DayClasses = { [key: string]: string[] };

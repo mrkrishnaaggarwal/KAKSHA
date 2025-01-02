@@ -11,7 +11,7 @@ import { IoLogOutOutline, IoHelpCircleOutline } from "react-icons/io5";
 import { GrAnnounce } from "react-icons/gr";
 import { CgProfile } from "react-icons/cg";
 import Image from 'next/image';
-import logo from '../../../public/logo.jpg';
+import logo from '@/public/logo.jpg';
 
 const StudentSidebar = () => {
     const pathname = usePathname(); 

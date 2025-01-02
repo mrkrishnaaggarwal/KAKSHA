@@ -1,8 +1,8 @@
 import React from 'react'
-import GreetingCard from '../components/common/GreetingCard'
-import AttendanceAndExamscore from '../components/student/AttendanceAndExamscore'
-import OverviewGraph from '../components/student/OverviewGraph'
-import Calender from '../components/student/Calender'
+import GreetingCard from '../components/GreetingCard'
+import AttendanceAndExamscore from '../components/AttendanceAndExamscore'
+import OverviewGraph from '../components/OverviewGraph'
+import Calender from '../components/Calender'
 function StudentDashboard() {
   return (
     <div className="w-full p-2 relative">

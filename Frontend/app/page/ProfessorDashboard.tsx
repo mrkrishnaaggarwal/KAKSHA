@@ -1,5 +1,5 @@
 import React from 'react'
-import GreetingCard from '../components/common/GreetingCard'
+import GreetingCard from '../components/GreetingCard'
 function ProfessorDashboard() {
   return (
     <div>
