@@ -1,7 +1,7 @@
 import React from 'react'
 // import axios from 'axios';
 // import { useEffect, useState } from 'react';
-import MainLayout from '../../components/MainLayout';
+import MainLayout from '@/app/components/MainLayout';
 // import Sidebar from '../Components/StudentSidebar';
 // import Topbar from '../Components/Topbar';
 

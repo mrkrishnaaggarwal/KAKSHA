@@ -27,3 +27,18 @@ export interface UserData {
   emergencyContactNumber: string;
   emergencyAddress: string;
 }
+
+export interface Student {
+  rollNo: string;
+  firstName: string;
+  lastName: string;
+  dob: string;
+  address?: string;
+  class?: {
+    name?: string;
+    class_teacher?: string;
+  };
+  semester: number;
+  batch: string;
+  email: string;
+}
