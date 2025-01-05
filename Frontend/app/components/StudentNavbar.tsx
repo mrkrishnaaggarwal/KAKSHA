@@ -19,7 +19,7 @@ const StudentSidebar = () => {
     const navItems = [
         { href: "/student/dashboard", label: "Dashboard", icon: <RiHome3Line /> },
         { href: "/student/announcements", label: "Announcements", icon: <GrAnnounce /> },
-        { href: "/student/results", label: "Results", icon: <BsFileEarmarkText /> },
+        { href: "/student/result", label: "Results", icon: <BsFileEarmarkText /> },
         { href: "/student/resources", label: "Resources", icon: <IoBarChartOutline /> },
         { href: "/student/community", label: "Community", icon: <AiOutlineSchedule /> },
         { href: "/student/myprofile", label: "My Profile", icon: <CgProfile /> },
