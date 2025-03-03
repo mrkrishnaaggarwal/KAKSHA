@@ -1,4 +1,4 @@
-
+/* 
 .react-calendar {
     width: 100%;
     max-width: 500px;
@@ -24,4 +24,103 @@
     background-color: #dbeafe; 
     cursor: pointer;
   }
+     */
+
+     .react-calendar {
+      width: 100%;
+      max-width: 100%;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 1px;
+      border-color: #a23bf6;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
     
+    .react-calendar__navigation {
+      display: flex;
+      height: 44px;
+      margin-bottom: 1em;
+    }
+    
+    .react-calendar__navigation button {
+      min-width: 44px;
+      background: none;
+      font-size: 16px;
+      border-radius: 6px;
+      margin: 0 4px;
+    }
+    
+    .react-calendar__navigation button:hover,
+    .react-calendar__navigation button:focus {
+      background-color: rgba(59, 130, 246, 0.1);
+    }
+    
+    .react-calendar__month-view__weekdays {
+      text-align: center;
+      text-transform: uppercase;
+      font-weight: 600;
+      font-size: 0.8em;
+    }
+    
+    .react-calendar__month-view__weekdays__weekday {
+      padding: 0.75em;
+    }
+    
+    .react-calendar__month-view__days__day--weekend {
+      color: #d10000;
+    }
+    
+    .react-calendar__tile {
+      position: relative;
+      max-width: 100%;
+      padding: 12px 6px;
+      background: none;
+      text-align: center;
+      line-height: 16px;
+      font-size: 14px;
+      border-radius: 8px;
+      margin: 2px;
+      transition: all 0.2s ease;
+    }
+    
+    .react-calendar__tile:hover {
+      background-color: rgba(59, 130, 246, 0.1);
+    }
+    
+    .react-calendar__tile--active {
+      background: #3b82f6;
+      color: white;
+    }
+    
+    .react-calendar__tile--now {
+      background: #3b82f6;
+      color: white;
+      font-weight: bold;
+    }
+    
+    .calendar-container {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    
+    .loader {
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top: 3px solid #3b82f6;
+      width: 24px;
+      height: 24px;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .event-indicator {
+      position: absolute;
+      bottom: 2px;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: center;
+    }

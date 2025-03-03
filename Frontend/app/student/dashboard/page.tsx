@@ -3,7 +3,7 @@ import React from 'react'
 
 const page = () => {
   return (
-    <div className=''>
+    <div className='flex-1 min-h-screen overflow-auto'>
       <StudentDashboard />
     </div>
   )
