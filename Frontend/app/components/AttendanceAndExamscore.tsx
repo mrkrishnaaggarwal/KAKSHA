@@ -75,7 +75,7 @@ function AttendanceAndExamscore() {
                 <div className="bg-white p-6 rounded-lg shadow-md border-2 mr-3 border-neutral-200">
                     <div className="flex">
                         <div>
-                            <h3 className="text-2xl font-semibold text-fuchsia-700 border-purple-800 border-2 p-3 text-center">Attendance Rate</h3>
+                            <h3 className="text-2xl font-semibold text-fuchsia-700  p-3 text-center">Attendance Rate</h3>
                             <p className="text-xl font-bold border-purple-800 border-2 p-3 text-center">{attended}/{total}</p>
                         </div>
                         <div style={{ width: "120px", margin: "auto" }}>
