@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url      = env("PRISMA_CONNECTION_STRING")
 }
 
 model Class {
@@ -18,7 +18,7 @@ model Class {
   announcements Announcement[]
 }
 model Student {
-  id         Int          @id @default(autoincrement())
+  id         String          @id @default(uuid())
   rollNo     String       @unique @db.VarChar(50) @map("roll_no")
   firstName  String       @db.VarChar(100) @map("first_name")
   lastName   String       @db.VarChar(100) @map("last_name")
@@ -37,7 +37,7 @@ model Student {
 }
 
 model Professor {
-  id           Int              @id @default(autoincrement())
+  id           String              @id @default(uuid())
   firstName    String           @db.VarChar(100) @map("first_name")
   lastName     String           @db.VarChar(100) @map("last_name")
   dob          DateTime         @db.Date
@@ -56,7 +56,7 @@ model Professor {
 
 model ProfessorClass {
   id          Int        @id @default(autoincrement())
-  professorId Int        @map("professor_id")
+  professorId String     @map("professor_id")
   classId     Int        @map("class_id")
   subject     String     @db.VarChar(100)
   professor   Professor  @relation(fields: [professorId], references: [id])
@@ -73,7 +73,7 @@ model TimeTable {
   endTime        DateTime         @db.Time @map("end_time")
   subject        String           @db.VarChar(100)
   room           String           @db.VarChar(50)
-  professorId    Int              @map("professor_id")
+  professorId    String              @map("professor_id")
   class          Class            @relation(fields: [classId], references: [id])
   professor      Professor        @relation(fields: [professorId], references: [id])
   attendance     Attendance[]
@@ -82,7 +82,7 @@ model TimeTable {
 
 model Attendance {
   id           Int       @id @default(autoincrement())
-  studentId    Int       @map("student_id")
+  studentId    String       @map("student_id")
   timeTableId  Int       @map("time_table_id")
   date         DateTime  @db.Date
   status       String    @db.VarChar(20)
@@ -107,7 +107,7 @@ model Homework {
   content        String       @db.Text
   publishDate    DateTime     @db.Date @map("publish_date")
   submissionDate DateTime     @db.Date @map("submission_date")
-  professorId    Int         @map("professor_id")
+  professorId    String         @map("professor_id")
   classId        Int         @map("class_id")
   fileName       String?      @db.VarChar(200) @map("file_name")
   fileLink       String?      @db.Text @map("file_link")
@@ -121,7 +121,7 @@ model Result {
   id          Int      @id @default(autoincrement())
   exam        String   @db.VarChar(100)
   date        DateTime @db.Date
-  studentId   Int      @map("student_id")
+  studentId   String      @map("student_id")
   subject     String   @db.VarChar(100)
   marks       Int
   totalMarks  Int      @map("total_marks")
@@ -134,7 +134,7 @@ model Result {
 model Submission {
   id        Int      @id @default(autoincrement())
   hwId      Int      @map("hw_id")
-  studentId Int      @map("student_id")
+  studentId String      @map("student_id")
   content   String?  @db.Text
   fileName  String?  @db.VarChar(200) @map("file_name")
   fileLink  String?  @db.Text @map("file_link")
@@ -152,7 +152,7 @@ model Announcement {
   content     String    @db.Text
   fileName    String?   @db.VarChar(200) @map("file_name")
   fileLink    String?   @db.Text @map("file_link")
-  professorId Int       @map("professor_id")
+  professorId String       @map("professor_id")
   date        DateTime  @db.Date
   class       Class     @relation(fields: [classId], references: [id])
   professor   Professor @relation(fields: [professorId], references: [id])
