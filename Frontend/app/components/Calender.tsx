@@ -165,7 +165,7 @@ export default function Calendar() {
       {/* Mini Calendar Grid */}
       <div className="px-2 pt-2 pb-3">
         <div className="grid grid-cols-7 mb-1">
-          {["S", "M", "T", "W", "T", "F", "S"].map((day) => (
+          {["S", "M", "T", "W", "TH", "F", "SA"].map((day) => (
             <div key={day} className="text-center text-xs font-medium text-gray-500 py-1">
               {day}
             </div>
