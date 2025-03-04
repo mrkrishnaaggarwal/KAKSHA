@@ -3,10 +3,12 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   webpack: (config) => {
-    config.resolve.fallback = { fs: false }; // Example for missing node modules
+    config.resolve.fallback = { fs: false };
     return config;
   },
-  /* config options here */
+  images: {
+    domains: ['images.unsplash.com'],
+  },
 };
 
 export default withNextVideo(nextConfig);
