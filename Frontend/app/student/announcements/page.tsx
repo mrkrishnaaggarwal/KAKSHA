@@ -289,7 +289,7 @@ export default function AnnouncementsPage() {
                   </p>
                 </div>
               </div>
-              <a
+              {/* <a
                 href="/student/calendar"
                 className="block text-sm text-blue-600 hover:text-blue-800 mt-4 flex items-center font-medium"
               >
@@ -297,7 +297,7 @@ export default function AnnouncementsPage() {
                 <svg className="h-3 w-3 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
-              </a>
+              </a> */}
             </div>
 
             {/* Homework widget - Enhanced styling */}
