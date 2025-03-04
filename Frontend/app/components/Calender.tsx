@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -7,83 +6,326 @@ import {
   AiOutlineLeft, 
   AiOutlineRight, 
   AiOutlineClockCircle, 
-  AiOutlineEnvironment 
+  AiOutlineEnvironment,
+  AiOutlineUser,
+  AiOutlineExclamationCircle,
+  AiOutlineClose
 } from "react-icons/ai";
+import axios from "axios";
+
+// -----------------------------------------------------
+// Type definitions
+// -----------------------------------------------------
+type ClassDetails = {
+  subject: string;
+  startTime: string;
+  endTime: string;
+  room: string;
+  professor: string;
+};
+
+type WeekdayTimetable = {
+  [key: string]: ClassDetails[];
+};
+
+type CancelledClass = {
+  date: string;
+  subject: string;
+  start_time: string;
+  end_time: string;
+};
 
 type Class = {
   id: number;
   subject: string;
   time: string;
+  startTime: string;
+  endTime: string;
   room: string;
   color: string;
+  professor: string;
+  isCancelled: boolean;
 };
 
-const sampleClassSchedule: Record<string, Class[]> = {
-  "2025-03-04": [
-    { 
-      id: 1, 
-      subject: "Mathematics", 
-      time: "09:00 AM", 
-      room: "A-101",
-      color: "bg-blue-100 border-blue-300 text-blue-800"
-    },
-    { 
-      id: 2, 
-      subject: "Physics Lab", 
-      time: "11:00 AM", 
-      room: "L-203",
-      color: "bg-purple-100 border-purple-300 text-purple-800"
-    },
-  ],
-  "2025-03-05": [
-    { 
-      id: 4, 
-      subject: "Computer Science", 
-      time: "10:00 AM", 
-      room: "T-310",
-      color: "bg-emerald-100 border-emerald-300 text-emerald-800"
-    },
-  ],
-  "2025-03-06": [
-    { 
-      id: 6, 
-      subject: "Chemistry", 
-      time: "09:30 AM", 
-      room: "B-103",
-      color: "bg-indigo-100 border-indigo-300 text-indigo-800"
-    }
-  ],
+type CalendarDayInfo = {
+  date: Date | null;
+  isCurrentMonth: boolean;
+  isToday?: boolean;
+  isSelected?: boolean;
+  hasClasses?: boolean;
+  hasCancelledClasses?: boolean;
+  classCount?: number;
 };
 
+// -----------------------------------------------------
+// Helper Functions
+// -----------------------------------------------------
+const formatDateKey = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
+const formatTime = (timeStr: string): string => {
+  if (!timeStr) return "";
+  const [hours, minutes] = timeStr.split(":");
+  const h = parseInt(hours, 10);
+  const period = h >= 12 ? "PM" : "AM";
+  const hour = h % 12 || 12;
+  return `${hour}:${minutes || "00"} ${period}`;
+};
+
+// -----------------------------------------------------
+// Main Component
+// -----------------------------------------------------
 export default function Calendar() {
   const [currentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [classes, setClasses] = useState<Class[]>([]);
+  const [timetableData, setTimetableData] = useState<Record<string, Class[]>>({});
+  const [cancelledClasses, setCancelledClasses] = useState<CancelledClass[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
+  // -----------------------------------------------------
+  // Transform timetable API data
+  // -----------------------------------------------------
+  const transformTimetableData = (apiData: WeekdayTimetable): Record<string, Class[]> => {
+    const result: Record<string, Class[]> = {};
+    
+    // Color mapping for subjects
+    const subjectColors: Record<string, string> = {};
+    const availableColors = [
+      "bg-blue-100 border-blue-300 text-blue-800",
+      "bg-purple-100 border-purple-300 text-purple-800",
+      "bg-emerald-100 border-emerald-300 text-emerald-800",
+      "bg-indigo-100 border-indigo-300 text-indigo-800",
+      "bg-amber-100 border-amber-300 text-amber-800",
+      "bg-rose-100 border-rose-300 text-rose-800",
+      "bg-cyan-100 border-cyan-300 text-cyan-800"
+    ];
+    
+    // Day name to number mapping
+    const dayMapping: Record<string, number> = {
+      "Sunday": 0, "Monday": 1, "Tuesday": 2, "Wednesday": 3,
+      "Thursday": 4, "Friday": 5, "Saturday": 6
+    };
 
-  // Format date as YYYY-MM-DD for schedule lookup
-  const formatDateKey = (date: Date): string => {
-    return date.toISOString().split('T')[0];
+    // Process for each day in the current month
+    const year = currentMonth.getFullYear();
+    const month = currentMonth.getMonth();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    
+    for (let day = 1; day <= daysInMonth; day++) {
+      const date = new Date(year, month, day);
+      const dayOfWeekNum = date.getDay();
+      const dayName = Object.keys(dayMapping).find(
+        (key) => dayMapping[key] === dayOfWeekNum
+      );
+
+      if (dayName && apiData[dayName]) {
+        const dateKey = formatDateKey(date);
+        
+        result[dateKey] = apiData[dayName].map((cls: ClassDetails, index: number) => {
+          if (!subjectColors[cls.subject]) {
+            subjectColors[cls.subject] =
+              availableColors[Object.keys(subjectColors).length % availableColors.length];
+          }
+          
+          return {
+            id: index + 1,
+            subject: cls.subject,
+            time: `${formatTime(cls.startTime)} - ${formatTime(cls.endTime)}`,
+            startTime: cls.startTime,
+            endTime: cls.endTime,
+            room: cls.room || "TBA",
+            color: subjectColors[cls.subject],
+            professor: cls.professor || "Not Assigned",
+            isCancelled: false // Will be updated with cancelled classes later
+          };
+        });
+      }
+    }
+    
+    return result;
+  };
+  
+  // -----------------------------------------------------
+  // Update timetable data with cancelled classes immediately
+  // -----------------------------------------------------
+  const updateTimetableWithCancelledClasses = (
+    timetable: Record<string, Class[]>, 
+    cancelled: CancelledClass[]
+  ) => {
+    // Create a direct lookup map
+    const cancelledMap: Record<string, boolean> = {};
+    
+    cancelled.forEach((cls) => {
+      // Process the API date into local date
+      const apiDate = new Date(cls.date);
+      const year = apiDate.getFullYear();
+      const month = String(apiDate.getMonth() + 1).padStart(2, "0");
+      const day = String(apiDate.getDate()).padStart(2, "0");
+      const dateKey = `${year}-${month}-${day}`;
+      
+      // Create multiple lookup keys to handle time format differences
+      const key1 = `${dateKey}|${cls.subject}|${cls.start_time}|${cls.end_time}`;
+      const key2 = `${dateKey}|${cls.subject}|${cls.start_time.substring(0, 5)}|${cls.end_time.substring(0, 5)}`;
+      
+      cancelledMap[key1] = true;
+      cancelledMap[key2] = true;
+      
+      console.log(`Added cancelled class key: ${key1}`);
+      console.log(`Added cancelled class key: ${key2}`);
+    });
+
+    // Update all classes in the timetable
+    const updatedTimetable: Record<string, Class[]> = {};
+    
+    Object.keys(timetable).forEach((dateKey) => {
+      updatedTimetable[dateKey] = timetable[dateKey].map((cls) => {
+        // Create lookup keys with both full format and shortened format
+        const key1 = `${dateKey}|${cls.subject}|${cls.startTime}|${cls.endTime}`;
+        const key2 = `${dateKey}|${cls.subject}|${cls.startTime.substring(0, 5)}|${cls.endTime.substring(0, 5)}`;
+        
+        const isCancelled = cancelledMap[key1] || cancelledMap[key2];
+        
+        if (isCancelled) {
+          console.log(`MARKED AS CANCELLED: ${key1}`);
+        }
+        
+        return {
+          ...cls,
+          isCancelled: isCancelled
+        };
+      });
+    });
+
+    setTimetableData(updatedTimetable);
+    
+    // Also update the current selected date classes
+    const dateKey = formatDateKey(selectedDate);
+    setClasses(updatedTimetable[dateKey] || []);
   };
 
-  // Load classes for the currently selected date
+  // -----------------------------------------------------
+  // Fetch timetable and cancelled classes data
+  // -----------------------------------------------------
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        let token = localStorage.getItem("token") || "";
+        if (!token) {
+          throw new Error("Authentication token not found");
+        }
+        token = "Bearer " + token;
+        const headers = { Authorization: token };
+
+        // Get timetable data
+        const timetableResponse = await axios.get(
+          "http://localhost:8080/api/v1/student/timetable", 
+          { headers, withCredentials: true }
+        );
+
+        // Variable to store transformed data that can be used throughout the function
+        let processedTimetableData: Record<string, Class[]> = {};
+
+        if (timetableResponse.data.success === 200) {
+          processedTimetableData = transformTimetableData(timetableResponse.data.data);
+          setTimetableData(processedTimetableData);
+          console.log("Timetable data:", processedTimetableData);
+        } else {
+          throw new Error(timetableResponse.data.message || "Failed to fetch timetable");
+        }
+
+        // Get cancelled classes
+        const cancelledClassesResponse = await axios.get(
+          "http://localhost:8080/api/v1/student/cancelled-classes", 
+          { headers, withCredentials: true }
+        );
+
+        if (cancelledClassesResponse.data.success === 200) {
+          const cancelledData = cancelledClassesResponse.data.data;
+          setCancelledClasses(cancelledData);
+          console.log("Cancelled classes RECEIVED:", cancelledData);
+          
+          // Now we can safely use processedTimetableData
+          updateTimetableWithCancelledClasses(processedTimetableData, cancelledData);
+        } else {
+          console.warn("Failed to fetch cancelled classes:", cancelledClassesResponse.data.message);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setError(error instanceof Error ? error.message : "An unexpected error occurred");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // Update classes when selected date or timetable changes
   useEffect(() => {
     const dateKey = formatDateKey(selectedDate);
-    setClasses(sampleClassSchedule[dateKey] || []);
-  }, [selectedDate]);
+    setClasses(timetableData[dateKey] || []);
+  }, [selectedDate, timetableData]);
 
-  // Navigate to the previous month
+  // -----------------------------------------------------
+  // Navigation functions
+  // -----------------------------------------------------
   const prevMonth = () => {
     setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1));
   };
 
-  // Navigate to the next month
   const nextMonth = () => {
     setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1));
   };
 
-  // Check if two dates are exactly equal
-  const isSameDate = (date1: Date, date2: Date) => {
+  // -----------------------------------------------------
+  // Calendar grid generation
+  // -----------------------------------------------------
+  const getDaysInMonth = (): CalendarDayInfo[] => {
+    const year = currentMonth.getFullYear();
+    const month = currentMonth.getMonth();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const firstDayOfMonth = new Date(year, month, 1).getDay();
+    const days: CalendarDayInfo[] = [];
+
+    // Empty cells for days before month starts
+    for (let i = 0; i < firstDayOfMonth; i++) {
+      days.push({ date: null, isCurrentMonth: false });
+    }
+
+    // Days of the month
+    for (let day = 1; day <= daysInMonth; day++) {
+      const date = new Date(year, month, day);
+      const dateKey = formatDateKey(date);
+      
+      // Check if there are any classes/cancelled classes for this day
+      const dayClasses = timetableData[dateKey] || [];
+      const hasCancelledClasses = dayClasses.some(cls => cls.isCancelled);
+      
+      days.push({
+        date,
+        isCurrentMonth: true,
+        isToday: isSameDay(date, new Date()),
+        isSelected: isSameDay(date, selectedDate),
+        hasClasses: dayClasses.length > 0,
+        hasCancelledClasses,
+        classCount: dayClasses.length
+      });
+    }
+    
+    return days;
+  };
+
+  // Check if two dates are the same day
+  const isSameDay = (date1: Date, date2: Date): boolean => {
     return (
       date1.getFullYear() === date2.getFullYear() &&
       date1.getMonth() === date2.getMonth() &&
@@ -91,71 +333,48 @@ export default function Calendar() {
     );
   };
 
-  // Generate an array of day objects to build the calendar grid
-  const getDaysInMonth = () => {
-    const year = currentMonth.getFullYear();
-    const month = currentMonth.getMonth();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const firstDayOfMonth = new Date(year, month, 1).getDay();
-
-    const days = [];
-
-    // Add empty cells for days before the first day of the month
-    for (let i = 0; i < firstDayOfMonth; i++) {
-      days.push({ date: null, isCurrentMonth: false });
-    }
-
-    // Add day cells for the current month
-    for (let i = 1; i <= daysInMonth; i++) {
-      const date = new Date(year, month, i);
-      const dateKey = formatDateKey(date);
-      days.push({
-        date,
-        isCurrentMonth: true,
-        isToday: isSameDate(date, new Date()),
-        isSelected: isSameDate(date, selectedDate),
-        hasClasses: Boolean(sampleClassSchedule[dateKey]),
-        classCount: sampleClassSchedule[dateKey]?.length || 0,
-      });
-    }
-    return days;
-  };
-
   const days = getDaysInMonth();
-
-  const selectedDateStr = selectedDate.toLocaleDateString('en-US', { 
-    weekday: 'short', 
-    month: 'short', 
-    day: 'numeric' 
+  const selectedDateStr = selectedDate.toLocaleDateString("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric"
   });
 
+  // -----------------------------------------------------
+  // Render the Calendar component
+  // -----------------------------------------------------
   return (
     <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
       {/* Calendar Header */}
-      <div className="bg-blue-50 border-b border-blue-100 px-3 py-3">
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-100 px-3 py-3">
         <div className="flex items-center justify-between">
-          <h3 className="font-medium text-gray-900">Class Schedule</h3>
-          <div className="text-xs font-medium bg-blue-600 text-white px-2 py-0.5 rounded-full">
+          <h3 className="font-medium text-gray-900">Academic Schedule</h3>
+          <button
+            onClick={() => setSelectedDate(new Date())}
+            className="text-xs font-medium bg-blue-600 hover:bg-blue-700 text-white px-2 py-0.5 rounded-full transition-colors"
+          >
             Today
-          </div>
+          </button>
         </div>
       </div>
 
       {/* Calendar Navigation */}
       <div className="flex items-center justify-between px-3 py-2 border-b border-gray-200">
         <h4 className="text-sm font-medium text-gray-700">
-          {currentMonth.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+          {currentMonth.toLocaleDateString("en-US", { month: "long", year: "numeric" })}
         </h4>
         <div className="flex space-x-1">
-          <button 
-            onClick={prevMonth} 
+          <button
+            onClick={prevMonth}
             className="p-1 text-gray-600 hover:bg-gray-100 rounded transition-colors"
+            aria-label="Previous month"
           >
             <AiOutlineLeft size={14} />
           </button>
-          <button 
+          <button
             onClick={nextMonth}
             className="p-1 text-gray-600 hover:bg-gray-100 rounded transition-colors"
+            aria-label="Next month"
           >
             <AiOutlineRight size={14} />
           </button>
@@ -178,17 +397,20 @@ export default function Calendar() {
                 <motion.button
                   whileHover={{ scale: 0.9 }}
                   whileTap={{ scale: 0.85 }}
-                  onClick={() => setSelectedDate(day.date)}
-                  className={`w-full aspect-square flex flex-col items-center justify-center rounded-full text-xs
-                    ${day.isSelected ? 'bg-blue-600 text-white' : 
-                      day.isToday ? 'bg-blue-100 text-blue-800' : 
-                      'hover:bg-gray-100 text-gray-800'}
-                    ${day.hasClasses && !day.isSelected ? 'font-bold' : ''}
+                  onClick={() => setSelectedDate(day.date!)}
+                  className={`w-full aspect-square flex flex-col items-center justify-center rounded-full text-xs relative
+                    ${day.isSelected ? "bg-blue-600 text-white" : day.isToday ? "bg-blue-100 text-blue-800" : "hover:bg-gray-100 text-gray-800"}
+                    ${day.hasClasses && !day.isSelected ? "font-bold" : ""}
                   `}
                 >
                   {day.date.getDate()}
+                  {/* Class indicator dot */}
                   {day.hasClasses && !day.isSelected && (
                     <div className="h-1 w-1 rounded-full bg-blue-600 mt-0.5"></div>
+                  )}
+                  {/* Cancelled class indicator */}
+                  {day.hasCancelledClasses && (
+                    <div className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-red-500 border border-white"></div>
                   )}
                 </motion.button>
               ) : (
@@ -202,57 +424,102 @@ export default function Calendar() {
       {/* Classes for the Selected Date */}
       <div className="border-t border-gray-200 bg-gray-50">
         <div className="px-3 py-2 flex items-center justify-between">
-          <h4 className="text-xs font-medium text-gray-700">
-            {selectedDateStr}
-          </h4>
-          <span className="text-xs bg-gray-200 text-gray-700 px-1.5 py-0.5 rounded-full">
-            {classes.length}
-          </span>
+          <h4 className="text-xs font-medium text-gray-700">{selectedDateStr}</h4>
+          {!loading && !error && (
+            <span className="text-xs bg-gray-200 text-gray-700 px-1.5 py-0.5 rounded-full">
+              {classes.length}
+            </span>
+          )}
         </div>
         <div className="px-3 pb-3">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={formatDateKey(selectedDate)}
-              initial={{ opacity: 0, y: 5 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -5 }}
-              transition={{ duration: 0.15 }}
-              className="space-y-2"
-            >
-              {classes.length > 0 ? (
-                classes.map((cls) => (
-                  <motion.div
-                    key={cls.id}
-                    initial={{ opacity: 0, y: 5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className={`p-2 rounded border-l-2 ${cls.color}`}
-                  >
-                    <div className="text-sm font-medium">{cls.subject}</div>
-                    <div className="mt-1 space-y-1 text-xs">
-                      <div className="flex items-center text-gray-600">
-                        <AiOutlineClockCircle className="mr-1" size={12} />
-                        <span>{cls.time}</span>
+          {loading ? (
+            <div className="text-center py-6 text-sm text-gray-500">
+              <div className="animate-pulse flex flex-col items-center">
+                <div className="h-2 w-24 bg-gray-200 rounded mb-2"></div>
+                <div className="h-2 w-32 bg-gray-200 rounded"></div>
+              </div>
+              <div className="mt-2">Loading schedule...</div>
+            </div>
+          ) : error ? (
+            <div className="text-center py-4 text-sm">
+              <AiOutlineExclamationCircle size={24} className="mx-auto text-red-500 mb-2" />
+              <div className="text-red-500">{error}</div>
+              <button 
+                onClick={() => window.location.reload()} 
+                className="mt-2 text-xs text-blue-600 hover:text-blue-800 underline"
+              >
+                Retry
+              </button>
+            </div>
+          ) : (
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={formatDateKey(selectedDate)}
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -5 }}
+                transition={{ duration: 0.15 }}
+                className="space-y-2"
+              >
+                {classes.length > 0 ? (
+                  classes.map((cls) => (
+                    <motion.div
+                      key={cls.id}
+                      initial={{ opacity: 0, y: 5 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className={`p-2 rounded border-l-2 ${cls.color} relative ${cls.isCancelled ? "opacity-75" : ""}`}
+                    >
+                      {cls.isCancelled && (
+                        <div className="absolute top-0 right-0 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-bl-md rounded-tr-md flex items-center">
+                          <AiOutlineClose size={10} className="mr-0.5" />
+                          <span>Cancelled</span>
+                        </div>
+                      )}
+                      <div className={`text-sm font-medium ${cls.isCancelled ? "line-through decoration-red-500" : ""}`}>
+                        {cls.subject}
                       </div>
-                      <div className="flex items-center text-gray-600">
-                        <AiOutlineEnvironment className="mr-1" size={12} />
-                        <span>{cls.room}</span>
+                      <div className="mt-1 space-y-1 text-xs">
+                        <div className="flex items-center text-gray-600">
+                          <AiOutlineClockCircle className="mr-1" size={12} />
+                          <span>{cls.time}</span>
+                        </div>
+                        <div className="flex items-center text-gray-600">
+                          <AiOutlineEnvironment className="mr-1" size={12} />
+                          <span>{cls.room}</span>
+                        </div>
+                        {cls.professor && (
+                          <div className="flex items-center text-gray-600">
+                            <AiOutlineUser className="mr-1" size={12} />
+                            <span>{cls.professor}</span>
+                          </div>
+                        )}
                       </div>
-                    </div>
+                      {cls.isCancelled && (
+                        <div className="mt-1.5 pt-1.5 border-t border-gray-200 text-xs text-red-600">
+                          This class has been cancelled
+                        </div>
+                      )}
+                    </motion.div>
+                  ))
+                ) : (
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-8 text-sm text-gray-500">
+                    <div className="mb-1">No classes scheduled</div>
+                    <div className="text-xs">Enjoy your free time</div>
                   </motion.div>
-                ))
-              ) : (
-                <motion.div 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="text-center py-4 text-xs text-gray-500"
-                >
-                  No classes scheduled
-                </motion.div>
-              )}
-            </motion.div>
-          </AnimatePresence>
+                )}
+              </motion.div>
+            </AnimatePresence>
+          )}
         </div>
       </div>
+
+      {/* Global inline styles for custom classes */}
+      <style jsx global>{`
+        .text-xxs {
+          font-size: 0.65rem;
+          line-height: 0.75rem;
+        }
+      `}</style>
     </div>
   );
 }
