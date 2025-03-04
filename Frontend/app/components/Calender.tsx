@@ -467,7 +467,7 @@ export default function Calendar() {
                       key={cls.id}
                       initial={{ opacity: 0, y: 5 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className={`p-2 rounded border-l-2 ${cls.color} relative ${cls.isCancelled ? "opacity-75" : ""}`}
+                      className={`p-2 rounded border-l-2 ${cls.color} overflow-auto relative ${cls.isCancelled ? "opacity-75" : ""}`}
                     >
                       {cls.isCancelled && (
                         <div className="absolute top-0 right-0 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-bl-md rounded-tr-md flex items-center">
@@ -511,6 +511,7 @@ export default function Calendar() {
             </AnimatePresence>
           )}
         </div>
+        
       </div>
 
       {/* Global inline styles for custom classes */}
