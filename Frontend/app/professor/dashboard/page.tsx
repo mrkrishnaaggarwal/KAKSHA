@@ -1,13 +1,10 @@
 import ProfessorDashboard from '@/app/page/ProfessorDashboard'
 import React from 'react'
-function page() {
+const page = () => {
   return (
-    <>
-        <main className=''>
-          <ProfessorDashboard />
-        </main>
-        
-    </>
+    <div className='flex-1 min-h-screen overflow-auto'>
+      <ProfessorDashboard />
+    </div>
   )
 }
 
