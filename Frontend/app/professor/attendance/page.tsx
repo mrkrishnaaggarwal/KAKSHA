@@ -1,111 +1,163 @@
 "use client";
-import React, { useState } from 'react';
-import { MdChevronLeft, MdChevronRight } from 'react-icons/md';
+import React, { useState, useEffect } from 'react';
+import AttendanceCalendar from '@/app/components/Prof_Attendance_Calender';
+import AttendanceStats from '@/app/components/Prof_Attendance_Stats';
+import AttendanceForm from '@/app/components/Prof_Attendance_Mark';
 
 interface AttendanceData {
   [date: string]: {
     present: number;
     absent: number;
     tardy: number;
+    classData?: {
+      [className: string]: {
+        present: number;
+        absent: number;
+        tardy: number;
+      }
+    }
   };
 }
 
-const page = () => {
+interface StudentAttendance {
+  name: string;
+  status: 'Present' | 'Absent' | 'Tardy';
+  rollNumber?: string;
+}
+
+const AttendancePage = () => {
   const [selectedDate, setSelectedDate] = useState<number | null>(null);
   const [currentDate, setCurrentDate] = useState(new Date());
   const classes = ['CSA', 'CSB', 'CSC'];
-  const students = ['Himank', 'Krishna', 'Nikhil Sharma', 'Nitesh', 'Tanmay','Tanmay','Tanmay','Tanmay','Tanmay','Tanmay','Tanmay','Tanmay','Tanmay','Tanmay','Tanmay','Tanmay','Tanmay','Tanmay','Tanmay','Tanmay','Tanmay','Tanmay','Tanmay','Tanmay','Tanmay','Tanmay'];
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedFilter, setSelectedFilter] = useState<string | null>(null);
   const [selectedClass, setSelectedClass] = useState('CSA');
-  const [attendance, setAttendance] = useState(
-    students.map((student) => ({ name: student, status: 'Present' }))
+  
+  // Sample student data with roll numbers
+  const studentData = [
+    { name: 'Himank', rollNumber: 'CS001' },
+    { name: 'Krishna', rollNumber: 'CS002' },
+    { name: 'Nikhil Sharma', rollNumber: 'CS003' },
+    { name: 'Nitesh', rollNumber: 'CS004' },
+    { name: 'Tanmay', rollNumber: 'CS005' },
+    { name: 'Aarav', rollNumber: 'CS006' },
+    { name: 'Rohan', rollNumber: 'CS007' },
+    // Include all other students with roll numbers
+    { name: 'Karthik', rollNumber: 'CS008' },
+    { name: 'Aditya', rollNumber: 'CS009' },
+    { name: 'Viraj', rollNumber: 'CS010' },
+    { name: 'Neel', rollNumber: 'CS011' },
+    { name: 'Siddharth', rollNumber: 'CS012' },
+    { name: 'Manav', rollNumber: 'CS013' },
+    { name: 'Aryan', rollNumber: 'CS014' },
+    { name: 'Omkar', rollNumber: 'CS015' },
+    { name: 'Vihaan', rollNumber: 'CS016' },
+    { name: 'Devansh', rollNumber: 'CS017' },
+    { name: 'Ishan', rollNumber: 'CS018' },
+    { name: 'Kabir', rollNumber: 'CS019' },
+    { name: 'Shaurya', rollNumber: 'CS020' },
+    { name: 'Yash', rollNumber: 'CS021' },
+    { name: 'Rahul', rollNumber: 'CS022' },
+    { name: 'Sanket', rollNumber: 'CS023' },
+    { name: 'Harsh', rollNumber: 'CS024' },
+    { name: 'Pranav', rollNumber: 'CS025' },
+    { name: 'Arjun', rollNumber: 'CS026' },
+    { name: 'Eshan', rollNumber: 'CS027' },
+  ];
+  
+  const [attendance, setAttendance] = useState<StudentAttendance[]>(
+    studentData.map((student) => ({ 
+      name: student.name, 
+      status: 'Present', 
+      rollNumber: student.rollNumber 
+    }))
   );
 
-  // Sample attendance data
+  // Sample attendance data with class-specific information
   const attendanceData: AttendanceData = {
     "2024-12-21": {
-      present: 2,
-      absent: 2,
-      tardy: 1,
+      present: 20,
+      absent: 5,
+      tardy: 2,
+      classData: {
+        "CSA": { present: 8, absent: 2, tardy: 1 },
+        "CSB": { present: 7, absent: 1, tardy: 0 },
+        "CSC": { present: 5, absent: 2, tardy: 1 }
+      }
     },
     "2024-12-22": {
-      present: 2,
-      absent: 2,
-      tardy: 1,
+      present: 18,
+      absent: 7,
+      tardy: 2,
+      classData: {
+        "CSA": { present: 7, absent: 3, tardy: 0 },
+        "CSB": { present: 6, absent: 2, tardy: 1 },
+        "CSC": { present: 5, absent: 2, tardy: 1 }
+      }
     },
     "2024-12-23": {
-      present: 2,
-      absent: 2,
-      tardy: 1,
+      present: 22,
+      absent: 3,
+      tardy: 2,
+      classData: {
+        "CSA": { present: 9, absent: 1, tardy: 0 },
+        "CSB": { present: 8, absent: 0, tardy: 1 },
+        "CSC": { present: 5, absent: 2, tardy: 1 }
+      }
     },
   };
 
-  const daysInMonth = new Date(
-    currentDate.getFullYear(),
-    currentDate.getMonth() + 1,
-    0
-  ).getDate();
+  // Attendance statistics
+  const [stats, setStats] = useState({
+    present: 0,
+    absent: 0,
+    tardy: 0,
+    total: studentData.length
+  });
 
-  const firstDayOfMonth = new Date(
-    currentDate.getFullYear(),
-    currentDate.getMonth(),
-    1
-  ).getDay();
-
-  const lastDateOfPrevMonth = new Date(
-    currentDate.getFullYear(),
-    currentDate.getMonth(),
-    0
-  ).getDate();
+  // Update stats when attendance changes
+  useEffect(() => {
+    const present = attendance.filter(s => s.status === 'Present').length;
+    const absent = attendance.filter(s => s.status === 'Absent').length;
+    const tardy = attendance.filter(s => s.status === 'Tardy').length;
+    
+    setStats({
+      present,
+      absent,
+      tardy,
+      total: attendance.length
+    });
+  }, [attendance]);
 
   const monthNames = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
   ];
 
-  const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
-
-  const handleDateClick = (date: number) => {
-    setSelectedDate(date); // Set the selected date
-    const clickedDate = new Date(
-      currentDate.getFullYear(),
-      currentDate.getMonth(),
-      date
-    ).toISOString().split('T')[0];
-    console.log('Clicked date:', clickedDate);
-  };
-
-  const isToday = (date: number) => {
-    const today = new Date();
-    return (
-      date === today.getDate() &&
-      currentDate.getMonth() === today.getMonth() &&
-      currentDate.getFullYear() === today.getFullYear()
-    );
-  };
-
+  // FIX 1: Add missing calendar navigation handlers
   const handlePrevMonth = () => {
-    setCurrentDate(
-      new Date(currentDate.getFullYear(), currentDate.getMonth() - 1)
-    );
+    setCurrentDate(prevDate => new Date(prevDate.getFullYear(), prevDate.getMonth() - 1, 1));
   };
 
   const handleNextMonth = () => {
-    setCurrentDate(
-      new Date(currentDate.getFullYear(), currentDate.getMonth() + 1)
-    );
+    setCurrentDate(prevDate => new Date(prevDate.getFullYear(), prevDate.getMonth() + 1, 1));
   };
 
-  const handleStatusChange = (index: number, status: string) => {
+  const handleTodayClick = () => {
+    const today = new Date();
+    setCurrentDate(new Date(today.getFullYear(), today.getMonth(), 1));
+    setSelectedDate(today.getDate());
+  };
+
+  const handleDateClick = (date: number) => {
+    setSelectedDate(date);
+  };
+
+  const handleClassChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedClass(e.target.value);
+  };
+
+  const handleStatusChange = (index: number, status: 'Present' | 'Absent' | 'Tardy') => {
     setAttendance((prev) => {
       const updated = [...prev];
       updated[index].status = status;
@@ -113,206 +165,105 @@ const page = () => {
     });
   };
 
+  const handleBulkAction = (status: 'Present' | 'Absent' | 'Tardy') => {
+    setAttendance(prev => prev.map(student => ({
+      ...student,
+      status
+    })));
+  };
+
   const handleSave = () => {
-    console.log('Attendance for', selectedClass, currentDate, attendance);
-    alert('Attendance saved! Check console for details.');
+    const dateString = selectedDate 
+      ? new Date(currentDate.getFullYear(), currentDate.getMonth(), selectedDate).toISOString().split('T')[0]
+      : new Date().toISOString().split('T')[0];
+      
+    console.log('Attendance for', selectedClass, 'on', dateString, ':', attendance);
+    
+    const present = attendance.filter(s => s.status === 'Present').length;
+    const absent = attendance.filter(s => s.status === 'Absent').length;
+    const tardy = attendance.filter(s => s.status === 'Tardy').length;
+    
+    alert(`Attendance saved for ${selectedClass} on ${dateString}!\n\nPresent: ${present}\nAbsent: ${absent}\nTardy: ${tardy}`);
   };
 
-
-  const renderAttendanceData = (date: number) => {
-    const dateString = new Date(
-      currentDate.getFullYear(),
-      currentDate.getMonth(),
-      date
-    )
-      .toISOString()
-      .split('T')[0];
-
-    const data = attendanceData[dateString];
-
-    if (data) {
-      return (
-        <div className="flex flex-col gap-0.5 mt-1">
-          {data.present > 0 && (
-            <div className="flex items-center gap-1">
-              <span className="text-sm font-semibold text-white min-h-fit flex-grow bg-green-500 rounded-sm p-1">
-                P : {data.present}
-              </span>
-            </div>
-          )}
-          {data.absent > 0 && (
-            <div className="flex items-center gap-1">
-              <span className="text-sm font-semibold text-white min-h-fit flex-grow bg-red-500 rounded-sm p-1">
-                A : {data.absent}
-              </span>
-            </div>
-          )}
-          {data.tardy > 0 && (
-            <div className="flex items-center gap-1">
-              <span className="text-sm font-semibold text-white min-h-fit flex-grow bg-blue-500 rounded-sm p-1">
-                T : {data.tardy}
-              </span>
-            </div>
-          )}
-        </div>
-      );
-    }
-    return null;
-  };
+  const filteredStudents = attendance.filter(student => {
+    const matchesSearch = student.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                         (student.rollNumber && student.rollNumber.toLowerCase().includes(searchTerm.toLowerCase()));
+    const matchesFilter = selectedFilter ? student.status === selectedFilter : true;
+    return matchesSearch && matchesFilter;
+  });
 
   return (
-    <div className="min-h-screen bg-gray-100 p-2 w-[85%]">
-      <div className="w-full mx-auto bg-white shadow rounded-lg p-4">
-        <h1 className="text-3xl font-bold mb-4">Mark Attendance</h1>
-        <div className="flex">
-          <div className="w-1/2 pr-4">
-            {/* Calendar Section */}
-            <div className="w-full max-w-3xl">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-semibold">
-                  {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
-                </h2>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setCurrentDate(new Date())}
-                    className="px-3 py-1 text-sm bg-gray-500 text-white rounded"
-                  >
-                    today
-                  </button>
-                  <button
-                    onClick={handlePrevMonth}
-                    className="p-1 bg-gray-700 text-white rounded"
-                  >
-                    <MdChevronLeft size={16} />
-                  </button>
-                  <button
-                    onClick={handleNextMonth}
-                    className="p-1 bg-gray-700 text-white rounded"
-                  >
-                    <MdChevronRight size={16} />
-                  </button>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-7 border border-gray-200">
-                {days.map((day) => (
-                  <div
-                    key={day}
-                    className="p-2 text-center border-b border-gray-200 font-medium"
-                  >
-                    {day}
-                  </div>
-                ))}
-
-                {Array.from({ length: firstDayOfMonth }).map((_, index) => {
-                  const prevMonthDate =
-                    lastDateOfPrevMonth - firstDayOfMonth + index + 1;
-                  return (
-                    <div
-                      key={`prev-${index}`}
-                      className="p-2 min-h-16 border border-gray-200 text-gray-400"
-                    >
-                      {prevMonthDate}
-                    </div>
-                  );
-                })}
-
-                {Array.from({ length: daysInMonth }).map((_, index) => {
-                  const date = index + 1;
-                  return (
-                    <button
-                      key={date}
-                      onClick={() => handleDateClick(date)}
-                      className={`p-1 min-h-16 border border-gray-200 relative w-full text-left ${
-                        isToday(date)
-                          ? 'bg-yellow-100'
-                          : selectedDate === date
-                          ? 'bg-blue-100'
-                          : ''
-                      }`}
-                    >
-                      <div className='text-center'>{date}</div>
-                      {renderAttendanceData(date)}
-                    </button>
-                  );
-                })}
-
-                {Array.from({
-                  length: (7 - ((firstDayOfMonth + daysInMonth) % 7)) % 7,
-                }).map((_, index) => (
-                  <div
-                    key={`next-${index}`}
-                    className="p-2 min-h-16 border border-gray-200 text-gray-400"
-                  >
-                    {index + 1}
-                  </div>
-                ))}
-              </div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 w-full overflow-auto">
+      <div className="max-w-7xl mx-auto bg-white shadow-lg rounded-2xl overflow-hidden border border-gray-200">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-blue-600 to-indigo-700 py-6 px-8 text-white">
+          <h1 className="text-3xl font-bold">Attendance Management</h1>
+          <p className="text-blue-100 mt-1">Keep track of your students' attendance records</p>
+          
+          {/* Date display and class selector */}
+          <div className="mt-4 flex items-center justify-between">
+            <div>
+              <span className="text-xl font-medium">{selectedDate 
+                ? `${monthNames[currentDate.getMonth()]} ${selectedDate}, ${currentDate.getFullYear()}`
+                : 'Select a date'}</span>
             </div>
-          </div>
-
-          {/* Attendance Section */}
-          <div className="w-1/2 pl-4">
-            <select
+            <div className="flex items-center gap-2">
+              <select
                 value={selectedClass}
-                onChange={(e) => setSelectedClass(e.target.value)}
-                className="border border-gray-300 rounded p-2 mb-2"
+                onChange={handleClassChange}
+                className="bg-blue-900 border-blue-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
                 {classes.map((cls) => (
                   <option key={cls} value={cls}>
-                    {cls}
+                    Class {cls}
                   </option>
                 ))}
-            </select>
-            <div className="space-y-4 max-h-96 overflow-y-scroll">
-              {attendance.map((student, index) => (
-                <div
-                  key={student.name}
-                  className="flex justify-between items-center border-b pb-2"
-                >
-                  <span>{student.name}</span>
-                  <div className="space-x-2">
-                    <button
-                      onClick={() => handleStatusChange(index, 'Present')}
-                      className={`px-4 py-2 rounded ${
-                        student.status === 'Present'
-                          ? 'bg-green-500 text-white'
-                          : 'bg-gray-200'
-                      }`}
-                    >
-                      Present
-                    </button>
-                    <button
-                      onClick={() => handleStatusChange(index, 'Absent')}
-                      className={`px-4 py-2 rounded ${
-                        student.status === 'Absent'
-                          ? 'bg-red-500 text-white'
-                          : 'bg-gray-200'
-                      }`}
-                    >
-                      Absent
-                    </button>
-                    <button
-                      onClick={() => handleStatusChange(index, 'Tardy')}
-                      className={`px-4 py-2 rounded ${
-                        student.status === 'Tardy'
-                          ? 'bg-blue-500 text-white'
-                          : 'bg-gray-200'
-                      }`}
-                    >
-                      Tardy
-                    </button>
-                  </div>
-                </div>
-              ))}
+              </select>
             </div>
+          </div>
+        </div>
+        
+        {/* Main Content */}
+        <div className="flex flex-col lg:flex-row">
+          {/* FIX 2: Make left sidebar sticky so it moves with scrolling */}
+          <div className="w-full lg:w-1/2 lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto p-6 border-b lg:border-b-0 lg:border-r border-gray-200">
+            {/* Calendar Component */}
+            <AttendanceCalendar 
+              currentDate={currentDate}
+              setCurrentDate={setCurrentDate}
+              selectedDate={selectedDate}
+              selectedClass={selectedClass}
+              attendanceData={attendanceData}
+              onDateClick={handleDateClick}
+              onPrevMonth={handlePrevMonth}
+              onNextMonth={handleNextMonth}
+              onTodayClick={handleTodayClick}
+            />
+            
+            {/* FIX 3: Pass classSpecificStats flag to show class-wise attendance */}
+            <AttendanceStats 
+              stats={stats}
+              selectedDate={selectedDate}
+              currentDate={currentDate}
+              selectedClass={selectedClass}
+              attendanceData={attendanceData}
+              showClassSpecific={true}
+            />
+          </div>
 
-            <button
-              onClick={handleSave}
-              className="mt-1 bg-green-500 text-white px-4 py-2 rounded"
-            >
-              Save
-            </button>
+          {/* Right: Attendance Form */}
+          <div className="w-full lg:w-1/2 p-6">
+            <AttendanceForm
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
+              selectedFilter={selectedFilter}
+              setSelectedFilter={setSelectedFilter}
+              filteredStudents={filteredStudents}
+              handleStatusChange={handleStatusChange}
+              handleBulkAction={handleBulkAction}
+              handleSave={handleSave}
+            />
           </div>
         </div>
       </div>
@@ -320,4 +271,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default AttendancePage;
