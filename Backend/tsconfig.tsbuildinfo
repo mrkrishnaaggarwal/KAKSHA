@@ -1,1 +1,0 @@
-{"root":["./src/index.ts","./src/seed.ts","./src/controller/index.ts","./src/controller/student.ts","./src/middleware/auth.ts","./src/routes/student.ts","./src/types/profile.ts"],"version":"5.7.2"}
