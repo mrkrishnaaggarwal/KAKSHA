@@ -35,7 +35,7 @@ const StudentMyProfile = () => {
     
     
   return (
-    <div className="flex w-screen h-screen">
+    <div className="flex-1 min-h-screen overflow-auto">
     {/* <Sidebar /> */}
     <div className='w-[100%]'>
       {/* <Topbar /> */}
