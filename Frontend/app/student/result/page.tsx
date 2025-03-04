@@ -148,7 +148,7 @@ const Results = () => {
           </div>
 
           {/* Results Section */}
-          <div className="w-full">
+          <div className="w-full mb-8">
             <ResultCard results={result} />
           </div>
         </div>

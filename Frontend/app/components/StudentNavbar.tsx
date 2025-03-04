@@ -10,6 +10,7 @@ import { BsFileEarmarkText } from "react-icons/bs";
 import { IoLogOutOutline, IoHelpCircleOutline } from "react-icons/io5";
 import { GrAnnounce } from "react-icons/gr";
 import { CgProfile } from "react-icons/cg";
+import { FaRegCalendarCheck } from "react-icons/fa";
 import Image from 'next/image';
 import logo from '@/public/logo.jpg';
 
@@ -19,6 +20,7 @@ const StudentSidebar = () => {
     const navItems = [
         { href: "/student/dashboard", label: "Dashboard", icon: <RiHome3Line /> },
         { href: "/student/announcements", label: "Announcements", icon: <GrAnnounce /> },
+        { href: "/student/attendance", label: "Attendance", icon: <FaRegCalendarCheck /> },
         { href: "/student/result", label: "Results", icon: <BsFileEarmarkText /> },
         { href: "/student/resources", label: "Resources", icon: <IoBarChartOutline /> },
         { href: "/student/community", label: "Community", icon: <AiOutlineSchedule /> },
