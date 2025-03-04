@@ -75,7 +75,7 @@ import { CgProfile } from "react-icons/cg";
 import { FaRegCalendarCheck } from "react-icons/fa";
 import Image from 'next/image';
 import logo from '@/public/logo.jpg';
-import Cookies from 'js-cookie';
+// import Cookies from 'js-cookie';
 
 const StudentSidebar = () => {
     const pathname = usePathname(); 
@@ -83,7 +83,7 @@ const StudentSidebar = () => {
 
     const handleLogout = () => {
         // Clear authentication tokens and cookies
-        Cookies.remove('refreshToken');
+        // Cookies.remove('refreshToken');
         localStorage.removeItem('token');
 
         // Redirect to login page
@@ -95,8 +95,8 @@ const StudentSidebar = () => {
         { href: "/student/announcements", label: "Announcements", icon: <GrAnnounce /> },
         { href: "/student/attendance", label: "Attendance", icon: <FaRegCalendarCheck /> },
         { href: "/student/result", label: "Results", icon: <BsFileEarmarkText /> },
-        { href: "/student/resources", label: "Resources", icon: <IoBarChartOutline /> },
-        { href: "/student/community", label: "Community", icon: <AiOutlineSchedule /> },
+        // { href: "/student/resources", label: "Resources", icon: <IoBarChartOutline /> },
+        // { href: "/student/community", label: "Community", icon: <AiOutlineSchedule /> },
         { href: "/student/myprofile", label: "My Profile", icon: <CgProfile /> },
     ];
 

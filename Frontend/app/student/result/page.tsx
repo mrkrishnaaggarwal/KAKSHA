@@ -1,157 +1,639 @@
 "use client";
 
-import React, { useState } from "react";
-import ResultCard from "@/app/components/ResultCard";
-import { Download, Calendar } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import axios from "axios";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement,
+  BarElement,
+} from "chart.js";
+import { Doughnut } from "react-chartjs-2";
+import {
+  FaChartLine,
+  FaFilter,
+  FaCalendarAlt,
+  FaBook,
+  FaCheckCircle,
+  FaTimesCircle,
+  FaGraduationCap,
+  FaSortAmountDown,
+  FaSortAmountUp,
+} from "react-icons/fa";
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement,
+  BarElement
+);
+
+// Type definitions
+interface Result {
+  id: number;
+  exam: string;
+  date: string;
+  student_id: string;
+  subject: string;
+  marks: number;
+  total_marks: number;
+  semester: number;
+}
+
+interface Stats {
+  totalMarksObtained: number;
+  totalMaxMarks: number;
+  averagePercentage: string;
+}
+
+interface ResultsResponse {
+  results: Result[];
+  stats: Stats;
+}
+
+const examTypeMap: Record<string, string> = {
+  "Finals": "Final Examination",
+  "Midterms": "Mid-Term Examination",
+  "Quarterly": "Quarterly Examination",
+};
 
 const Results = () => {
-  // Static data for results
-  const staticData = [
-    {
-      code: "ENG252",
-      subjectTitle: "English",
-      creditPoint: 4.5,
-      grade: "A",
-      obtainedMarks: 85,
-      maxMarks: 100,
-    },
-    {
-      code: "PHY252",
-      subjectTitle: "Physics",
-      creditPoint: 4.0,
-      grade: "B",
-      obtainedMarks: 75,
-      maxMarks: 100,
-    },
-    {
-      code: "MAIC252",
-      subjectTitle: "Mathematics",
-      creditPoint: 4.5,
-      grade: "A",
-      obtainedMarks: 90,
-      maxMarks: 100,
-    },
-    {
-      code: "CHEM175",
-      subjectTitle: "Organic Chemistry",
-      creditPoint: 4.0,
-      grade: "C+",
-      obtainedMarks: 68,
-      maxMarks: 100,
-    },
-    {
-      code: "COMP265",
-      subjectTitle: "Data Structures",
-      creditPoint: 4.5,
-      grade: "A-",
-      obtainedMarks: 87,
-      maxMarks: 100,
-    },
-    {
-      code: "HIST145",
-      subjectTitle: "World History",
-      creditPoint: 3.0,
-      grade: "B",
-      obtainedMarks: 78,
-      maxMarks: 100,
-    },
-    {
-      code: "ECON101",
-      subjectTitle: "Principles of Economics",
-      creditPoint: 3.5,
-      grade: "B-",
-      obtainedMarks: 74,
-      maxMarks: 100,
-    },
-    {
-      code: "PSYC205",
-      subjectTitle: "Cognitive Psychology",
-      creditPoint: 3.0,
-      grade: "A",
-      obtainedMarks: 30,
-      maxMarks: 100,
-    },
-  ];
+  const router = useRouter();
+  const [results, setResults] = useState<Result[]>([]);
+  const [stats, setStats] = useState<Stats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // State to manage results
-  const [result, setResult] = useState(staticData);
-  const [selectedExam, setSelectedExam] = useState("exam1");
+  // Filter states
+  const [examTypeFilter, setExamTypeFilter] = useState<string | null>(null);
+  const [semesterFilter, setSemesterFilter] = useState<number | null>(null);
+  const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'ascending' | 'descending' } | null>({
+    key: 'date',
+    direction: 'descending',
+  });
 
-  // Calculate summary statistics
-  const totalObtainedMarks = result.reduce(
-    (sum, item) => sum + item.obtainedMarks,
-    0
-  );
-  const totalMaxMarks = result.reduce((sum, item) => sum + item.maxMarks, 0);
-  const percentage = (totalObtainedMarks / totalMaxMarks) * 100;
+  // Get available exam types and semesters from data
+  const examTypes = [...new Set(results.map(result => result.exam))];
+  const semesters = [...new Set(results.map(result => result.semester))].sort((a, b) => a - b);
+
+  useEffect(() => {
+    const fetchResults = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        router.push("/login");
+        return;
+      }
+
+      setLoading(true);
+      try {
+        const response = await axios.get<{ statusCode: number; data: ResultsResponse; message: string; success: number }>
+          ("http://localhost:8080/api/v1/student/results", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            withCredentials: true,
+          });
+
+        const { results, stats } = response.data.data;
+        setResults(results);
+        setStats(stats);
+        setError(null);
+      } catch (err) {
+        console.error("Failed to fetch results:", err);
+        if (axios.isAxiosError(err) && err.response?.status === 401) {
+          localStorage.removeItem("token");
+          router.push("/login");
+          return;
+        }
+        setError("Failed to load results. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchResults();
+  }, [router]);
+
+  // Calculate grades based on percentage
+  const calculateGrade = (marks: number, totalMarks: number): string => {
+    const percentage = (marks / totalMarks) * 100;
+    if (percentage >= 90) return "A+";
+    if (percentage >= 85) return "A";
+    if (percentage >= 80) return "A-";
+    if (percentage >= 75) return "B+";
+    if (percentage >= 70) return "B";
+    if (percentage >= 65) return "B-";
+    if (percentage >= 60) return "C+";
+    if (percentage >= 55) return "C";
+    if (percentage >= 50) return "C-";
+    if (percentage >= 45) return "D+";
+    if (percentage >= 40) return "D";
+    if (percentage >= 35) return "D-";
+    return "F";
+  };
+
+  // Check if passed
+  const isPassed = (marks: number): boolean => {
+    return marks > 35;
+  };
+
+  // Filter results based on selected filters
+  const filteredResults = results.filter((result) => {
+    // Filter by exam type
+    if (examTypeFilter && result.exam !== examTypeFilter) {
+      return false;
+    }
+
+    // Filter by semester
+    if (semesterFilter !== null && result.semester !== semesterFilter) {
+      return false;
+    }
+
+    return true;
+  });
+
+  // Sort the filtered results
+  const sortedResults = [...filteredResults].sort((a, b) => {
+    if (!sortConfig) return 0;
+
+    let aValue: any = a[sortConfig.key as keyof Result];
+    let bValue: any = b[sortConfig.key as keyof Result];
+
+    // Special case for date
+    if (sortConfig.key === 'date') {
+      aValue = new Date(aValue).getTime();
+      bValue = new Date(bValue).getTime();
+    }
+
+    if (aValue < bValue) {
+      return sortConfig.direction === 'ascending' ? -1 : 1;
+    }
+    if (aValue > bValue) {
+      return sortConfig.direction === 'ascending' ? 1 : -1;
+    }
+    return 0;
+  });
+
+  // Request sort by column
+  const requestSort = (key: string) => {
+    let direction: 'ascending' | 'descending' = 'ascending';
+    if (
+      sortConfig &&
+      sortConfig.key === key &&
+      sortConfig.direction === 'ascending'
+    ) {
+      direction = 'descending';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  // Get sort direction icon for column
+  const getSortDirectionIcon = (key: string) => {
+    if (!sortConfig || sortConfig.key !== key) {
+      return null;
+    }
+    return sortConfig.direction === 'ascending' 
+      ? <FaSortAmountUp size={14} className="inline ml-1" /> 
+      : <FaSortAmountDown size={14} className="inline ml-1" />;
+  };
+
+  // Calculate filtered stats
+  const calculateFilteredStats = () => {
+    if (!filteredResults.length) {
+      return {
+        totalMarksObtained: 0,
+        totalMaxMarks: 0,
+        averagePercentage: "0.00",
+      };
+    }
+
+    const totalMarksObtained = filteredResults.reduce((sum, result) => sum + result.marks, 0);
+    const totalMaxMarks = filteredResults.reduce((sum, result) => sum + result.total_marks, 0);
+    const averagePercentage = ((totalMarksObtained / totalMaxMarks) * 100).toFixed(2);
+
+    return {
+      totalMarksObtained,
+      totalMaxMarks,
+      averagePercentage,
+    };
+  };
+
+  const filteredStats = calculateFilteredStats();
+
+  // Prepare chart data
+  const chartData = {
+    labels: ['Obtained', 'Remaining'],
+    datasets: [
+      {
+        data: [
+          parseFloat(filteredStats.averagePercentage),
+          100 - parseFloat(filteredStats.averagePercentage),
+        ],
+        backgroundColor: ['#6366F1', '#E2E8F0'],
+        borderColor: ['#4F46E5', '#CBD5E1'],
+        borderWidth: 1,
+        hoverOffset: 5,
+      },
+    ],
+  };
+
+  // Format date
+  const formatDate = (dateString: string): string => {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('en-US', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    }).format(date);
+  };
+
+  // Map exam type to display name
+  const getExamTypeDisplay = (examType: string): string => {
+    return examTypeMap[examType] || examType;
+  };
 
   return (
-    <div className="flex w-full min-h-screen bg-gray-50 overflow-auto">
-      {/* Main Content */}
-      <div className="w-full px-6 py-8 md:px-12">
-        <div className="flex flex-col">
-          {/* Header Section */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-800">
+    <div className="flex-1 bg-gray-50 min-h-screen p-4 md:p-6 overflow-auto">
+      <div className="max-w-7xl mx-auto overflow-auto">
+        {/* Header */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-auto mb-6">
+          <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-4">
+            <h1 className="text-white text-2xl font-bold flex items-center">
+              <FaGraduationCap className="mr-3" size={24} />
               Academic Results
             </h1>
-            <p className="mt-2 text-gray-600">
-              Review your examination performance
+            <p className="text-indigo-100 mt-1">
+              View and analyze your examination performance
             </p>
           </div>
 
-          {/* Controls Section */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 p-4 bg-white rounded-xl shadow-sm border border-gray-100">
-            {/* Left side - Stats */}
-            <div className="flex flex-col">
-              <div className="text-sm text-gray-500 mb-1">
-                Overall Performance
+          {/* Summary Stats */}
+          {!loading && !error && stats && (
+            <div className="p-4 md:p-6 grid grid-cols-1 md:grid-cols-3 gap-4 bg-white border-b border-gray-200">
+              <div className="bg-indigo-50 rounded-lg p-4 flex flex-col">
+                <span className="text-indigo-600 text-sm font-medium">Total Subjects</span>
+                <span className="text-indigo-900 text-2xl font-bold">{filteredResults.length}</span>
               </div>
-              <div className="flex items-end gap-2">
-                <span className="text-2xl font-bold text-gray-800">
-                  {percentage.toFixed(1)}%
+              
+              <div className="bg-indigo-50 rounded-lg p-4 flex flex-col">
+                <span className="text-indigo-600 text-sm font-medium">Overall Score</span>
+                <span className="text-indigo-900 text-2xl font-bold">
+                  {filteredStats.totalMarksObtained} / {filteredStats.totalMaxMarks}
                 </span>
-                <span className="text-sm text-gray-500 mb-1">
-                  ({totalObtainedMarks}/{totalMaxMarks})
+              </div>
+              
+              <div className="bg-indigo-50 rounded-lg p-4 flex flex-col">
+                <span className="text-indigo-600 text-sm font-medium">Average Percentage</span>
+                <span className="text-indigo-900 text-2xl font-bold">
+                  {filteredStats.averagePercentage}%
                 </span>
               </div>
             </div>
+          )}
+        </div>
 
-            {/* Right side - Controls */}
-            <div className="flex items-center gap-3">
-              <div className="relative">
-                <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                <select
-                  className="pl-10 pr-4 py-2.5 rounded-lg border border-gray-200 bg-white text-gray-700 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all"
-                  value={selectedExam}
-                  onChange={(e) => {
-                    setSelectedExam(e.target.value);
-                    console.log("Selected exam:", e.target.value);
-                  }}
-                >
-                  <option value="exam1">Mid-Term Examination</option>
-                  <option value="exam2">Final Examination</option>
-                  <option value="exam3">Quarterly Examination</option>
-                </select>
+        {/* Loading State */}
+        {loading && (
+          <div className="flex flex-col justify-center items-center h-80 bg-white rounded-xl shadow-sm border border-gray-200">
+            <div className="relative">
+              <div className="w-12 h-12 border-2 border-gray-200 border-opacity-60 rounded-full"></div>
+              <div className="absolute top-0 left-0 w-12 h-12 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+            </div>
+            <p className="mt-4 text-gray-600 font-medium">Loading your academic results...</p>
+          </div>
+        )}
+
+        {/* Error State */}
+        {!loading && error && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-auto">
+            <div className="p-6 text-center">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-100 mb-4">
+                <FaTimesCircle className="text-red-500" size={24} />
               </div>
-
+              <h3 className="text-lg font-medium text-gray-900 mb-2">{error}</h3>
+              <p className="text-gray-500 mb-4">We couldn't load your results. Please try again later.</p>
               <button
-                className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2.5 rounded-lg transition-colors shadow-sm"
-                onClick={() => {
-                  console.log("Download button clicked");
-                }}
+                onClick={() => window.location.reload()}
+                className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
               >
-                <Download className="h-4 w-4" />
-                <span>Download</span>
+                Refresh
               </button>
             </div>
           </div>
+        )}
 
-          {/* Results Section */}
-          <div className="w-full mb-8">
-            <ResultCard results={result} />
+        {/* Results Content */}
+        {!loading && !error && results.length > 0 && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-auto">
+            {/* Filters Section */}
+            <div className="p-4 md:p-6 border-b border-gray-200">
+              <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+                <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+                  <div>
+                    <label htmlFor="examType" className="block text-sm font-medium text-gray-700 mb-1">
+                      Exam Type
+                    </label>
+                    <select
+                      id="examType"
+                      value={examTypeFilter || ""}
+                      onChange={(e) => setExamTypeFilter(e.target.value || null)}
+                      className="block w-full rounded-md border border-gray-300 bg-white py-2 px-3 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+                    >
+                      <option value="">All Exams</option>
+                      {examTypes.map((type) => (
+                        <option key={type} value={type}>
+                          {getExamTypeDisplay(type)}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label htmlFor="semester" className="block text-sm font-medium text-gray-700 mb-1">
+                      Semester
+                    </label>
+                    <select
+                      id="semester"
+                      value={semesterFilter !== null ? semesterFilter : ""}
+                      onChange={(e) => setSemesterFilter(e.target.value ? Number(e.target.value) : null)}
+                      className="block w-full rounded-md border border-gray-300 bg-white py-2 px-3 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+                    >
+                      <option value="">All Semesters</option>
+                      {semesters.map((semester) => (
+                        <option key={semester} value={semester}>
+                          Semester {semester}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 text-sm text-gray-500">
+                  <FaFilter className="text-gray-400" />
+                  <span>
+                    Showing{" "}
+                    <strong className="font-medium text-gray-700">{filteredResults.length}</strong>{" "}
+                    of{" "}
+                    <strong className="font-medium text-gray-700">{results.length}</strong>{" "}
+                    results
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Chart and Stats Section */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-4 md:p-6 border-b border-gray-200">
+              {/* Performance Chart */}
+              <div className="md:col-span-1 bg-white p-4 rounded-lg border border-gray-200">
+                <h3 className="text-gray-700 font-semibold mb-4 flex items-center">
+                  <FaChartLine className="mr-2 text-indigo-600" />
+                  Performance Summary
+                </h3>
+                
+                <div className="h-48 flex items-center justify-center">
+                  <Doughnut 
+                    data={chartData}
+                    options={{
+                      cutout: '70%',
+                      plugins: {
+                        legend: {
+                          display: false,
+                        },
+                        tooltip: {
+                          callbacks: {
+                            label: function(context) {
+                              return `${context.label}: ${context.raw}%`;
+                            }
+                          }
+                        }
+                      },
+                    }}
+                  />
+                </div>
+                
+                <div className="mt-4 text-center">
+                  <div className="text-3xl font-bold text-indigo-600">
+                    {filteredStats.averagePercentage}%
+                  </div>
+                  <div className="text-sm text-gray-500">Average Score</div>
+                  
+                  <div className="mt-3 text-center">
+                    <div className={`text-sm inline-flex items-center px-2.5 py-1 rounded-full ${
+                      parseFloat(filteredStats.averagePercentage) >= 60
+                        ? "bg-green-100 text-green-800"
+                        : parseFloat(filteredStats.averagePercentage) >= 35
+                        ? "bg-yellow-100 text-yellow-800"
+                        : "bg-red-100 text-red-800"
+                    }`}>
+                      {parseFloat(filteredStats.averagePercentage) >= 60 ? (
+                        <>
+                          <FaCheckCircle className="mr-1" />
+                          Excellent
+                        </>
+                      ) : parseFloat(filteredStats.averagePercentage) >= 35 ? (
+                        <>
+                          <FaCheckCircle className="mr-1" />
+                          Satisfactory
+                        </>
+                      ) : (
+                        <>
+                          <FaTimesCircle className="mr-1" />
+                          Needs Improvement
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Results Table */}
+              <div className="md:col-span-2">
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th 
+                          scope="col" 
+                          className="px-3 py-3.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:text-gray-700"
+                          onClick={() => requestSort('subject')}
+                        >
+                          <div className="flex items-center">
+                            <FaBook className="mr-1 text-gray-400" size={12} />
+                            Subject
+                            {getSortDirectionIcon('subject')}
+                          </div>
+                        </th>
+                        <th 
+                          scope="col" 
+                          className="px-3 py-3.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:text-gray-700"
+                          onClick={() => requestSort('semester')}
+                        >
+                          <div className="flex items-center">
+                            <span>Sem</span>
+                            {getSortDirectionIcon('semester')}
+                          </div>
+                        </th>
+                        <th 
+                          scope="col" 
+                          className="px-3 py-3.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:text-gray-700"
+                          onClick={() => requestSort('date')}
+                        >
+                          <div className="flex items-center">
+                            <FaCalendarAlt className="mr-1 text-gray-400" size={12} />
+                            Date
+                            {getSortDirectionIcon('date')}
+                          </div>
+                        </th>
+                        <th 
+                          scope="col" 
+                          className="px-3 py-3.5 text-right text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:text-gray-700"
+                          onClick={() => requestSort('marks')}
+                        >
+                          <div className="flex items-center justify-end">
+                            <span>Marks</span>
+                            {getSortDirectionIcon('marks')}
+                          </div>
+                        </th>
+                        <th scope="col" className="px-3 py-3.5 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Grade
+                        </th>
+                        <th scope="col" className="px-3 py-3.5 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Status
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      <AnimatePresence>
+                        {sortedResults.map((result) => (
+                          <motion.tr 
+                            key={result.id}
+                            initial={{ opacity: 0, y: 5 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -5 }}
+                            transition={{ duration: 0.2 }}
+                            className="hover:bg-gray-50"
+                          >
+                            <td className="px-3 py-4 whitespace-nowrap text-sm font-medium text-gray-800">
+                              {result.subject}
+                            </td>
+                            <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-600">
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                                {result.semester}
+                              </span>
+                            </td>
+                            <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-600">
+                              {formatDate(result.date)}
+                            </td>
+                            <td className="px-3 py-4 whitespace-nowrap text-sm text-right font-medium">
+                              <span className="font-bold text-gray-800">{result.marks}</span> 
+                              <span className="text-gray-500">/ {result.total_marks}</span>
+                            </td>
+                            <td className="px-3 py-4 whitespace-nowrap text-center">
+                              <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium ${
+                                calculateGrade(result.marks, result.total_marks) === 'F' 
+                                  ? 'bg-red-100 text-red-800'
+                                  : calculateGrade(result.marks, result.total_marks).includes('A')
+                                  ? 'bg-green-100 text-green-800'
+                                  : calculateGrade(result.marks, result.total_marks).includes('B')
+                                  ? 'bg-blue-100 text-blue-800'
+                                  : calculateGrade(result.marks, result.total_marks).includes('C')
+                                  ? 'bg-yellow-100 text-yellow-800'
+                                  : 'bg-orange-100 text-orange-800'
+                              }`}>
+                                {calculateGrade(result.marks, result.total_marks)}
+                              </span>
+                            </td>
+                            <td className="px-3 py-4 whitespace-nowrap text-sm text-center">
+                              {isPassed(result.marks) ? (
+                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                  <FaCheckCircle className="mr-1" />
+                                  Pass
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                  <FaTimesCircle className="mr-1" />
+                                  Fail
+                                </span>
+                              )}
+                            </td>
+                          </motion.tr>
+                        ))}
+                      </AnimatePresence>
+                      
+                      {filteredResults.length === 0 && (
+                        <tr>
+                          <td colSpan={6} className="px-3 py-8 text-center text-sm text-gray-500">
+                            <div className="flex flex-col items-center justify-center">
+                              <div className="rounded-full bg-gray-100 p-3 mb-3">
+                                <FaFilter className="h-6 w-6 text-gray-400" />
+                              </div>
+                              <p className="font-medium">No results match your filters</p>
+                              <p className="mt-1">Try adjusting your search criteria</p>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            
+            {/* Legend */}
+            <div className="p-4 md:p-6 bg-gray-50 text-xs text-gray-600">
+              <div className="flex flex-wrap gap-x-6 gap-y-3 justify-center md:justify-start">
+                <div className="flex items-center">
+                  <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-green-100 text-green-800 text-xs font-medium mr-2">A</span>
+                  <span>Excellent (85%+)</span>
+                </div>
+                <div className="flex items-center">
+                  <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-800 text-xs font-medium mr-2">B</span>
+                  <span>Good (65-84%)</span>
+                </div>
+                <div className="flex items-center">
+                  <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-yellow-100 text-yellow-800 text-xs font-medium mr-2">C</span>
+                  <span>Average (50-64%)</span>
+                </div>
+                <div className="flex items-center">
+                  <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-orange-100 text-orange-800 text-xs font-medium mr-2">D</span>
+                  <span>Below Average (35-49%)</span>
+                </div>
+                <div className="flex items-center">
+                  <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-red-100 text-red-800 text-xs font-medium mr-2">F</span>
+                  <span>Fail (Below 35%)</span>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
+        )}
+
+        {/* No Results State */}
+        {!loading && !error && results.length === 0 && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-auto">
+            <div className="p-6 text-center">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
+                <FaBook className="text-gray-400" size={24} />
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No Results Available</h3>
+              <p className="text-gray-500 mb-4">
+                There are no examination results to display at this moment.
+              </p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

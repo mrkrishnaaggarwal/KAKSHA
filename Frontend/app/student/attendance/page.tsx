@@ -41,9 +41,13 @@ export default function AttendancePage() {
   const [subjectAttendance, setSubjectAttendance] = useState<SubjectAttendance[]>([]);
   
   // Format date as YYYY-MM-DD
-  const formatDateKey = (date: Date): string => {
-    return date.toISOString().split('T')[0];
-  };
+  // Fixed function
+    const formatDateKey = (date: Date): string => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
 
   // Check authentication and fetch overall attendance data (only once on mount)
   useEffect(() => {
@@ -96,6 +100,7 @@ export default function AttendancePage() {
       setDayLoading(true);
       try {
         // Fetch attendance for selected day
+        console.log("Fetching attendance for", formatDateKey(selectedDate));
         const dayAttendanceResponse = await axios.get(
           `http://localhost:8080/api/v1/student/day-attendance?date=${formatDateKey(selectedDate)}`,
           {
