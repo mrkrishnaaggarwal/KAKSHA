@@ -68,7 +68,7 @@ const Results = () => {
       subjectTitle: "Cognitive Psychology",
       creditPoint: 3.0,
       grade: "A",
-      obtainedMarks: 90,
+      obtainedMarks: 30,
       maxMarks: 100,
     },
   ];
