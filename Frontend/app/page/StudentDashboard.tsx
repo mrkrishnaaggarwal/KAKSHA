@@ -220,11 +220,11 @@ function StudentDashboard() {
   ];
 
   return (
-    <div className="flex flex-col w-full p-2 min-h-screen overflow-auto">
-      <div className="flex relative z-10">
-        <div className="w-8/12 mr-2">
+    <div className="flex-1 bg-gradient-to-b from-purple-100 via-white to-white p-1 md:p-2 lg:p-4 overflow-auto">
+      <div className="flex flex-col lg:flex-row gap-6 relative z-10 max-w-7xl mx-auto w-full">
+        <div className="w-full lg:w-8/12">
           <GreetingCard name="Student" />
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 m-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-6">
             <AnnouncementSection
               announcements={
                 announcements.length > 0 ? announcements : fallbackAnnouncements
@@ -239,10 +239,14 @@ function StudentDashboard() {
               error={error.homeworks}
             />
           </div>
-          <OverviewGraph />
+          <div className="mt-2 bg-white rounded-xl shadow-md p-4">
+            <OverviewGraph />
+          </div>
         </div>
-        <div className="w-4/12 ml-2">
-          <Calender />
+        <div className="w-full lg:w-4/12 h-full">
+          <div className="sticky top-6 bg-white rounded-xl shadow-md p-7">
+            <Calender />
+          </div>
         </div>
       </div>
     </div>

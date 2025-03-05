@@ -16,7 +16,7 @@ const page = () => {
   }, [router]);
 
   return (
-    <div className='flex-1 min-h-screen overflow-auto'>
+    <div className='flex-1 bg-gradient-to-b from-purple-100 via-white to-white p-1 md:p-2 lg:p-4 overflow-auto'>
       <StudentDashboard />
     </div>
   )
