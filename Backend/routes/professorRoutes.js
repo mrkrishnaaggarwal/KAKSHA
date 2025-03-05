@@ -5,12 +5,14 @@ import AuthMiddleware from "../middleware/authMiddleware.js";
 import ProfessorAnnouncementController from "../controller/professorAnnouncementController.js";
 import ProfessorAttendanceController from '../controller/professorAttendanceController.js';
 import ProfessorTimeTableController from '../controller/professorTimeTableController.js';
+import ClassCancelledController from '../controller/classCancelledController.js';
 
 const professorTimeTableController = new ProfessorTimeTableController();
 const professorAttendanceController = new ProfessorAttendanceController();
 const professorRouter = Router();
 const professorController = new ProfessorController();
 const professorAnnouncementController = new ProfessorAnnouncementController();
+const classCancelledController = new ClassCancelledController();
 
 console.log('[ProfessorRoutes] Initializing routes');
 
@@ -105,6 +107,11 @@ professorRouter.get('/attendance/class/:classId/subject-report', (req, res) => {
 professorRouter.get('/subjects/class/:classId', (req, res) => {
     console.log('[ProfessorRoutes] Get subjects for class route accessed');
     return professorAttendanceController.getSubjectsForClass(req, res);
+});
+
+professorRouter.post("/cancel-class", (req, res) => {
+    console.log('[ProfessorRoutes] Cancel class route accessed');
+    return classCancelledController.cancelClass(req, res);
 });
 
 console.log('[ProfessorRoutes] Routes initialized successfully');
