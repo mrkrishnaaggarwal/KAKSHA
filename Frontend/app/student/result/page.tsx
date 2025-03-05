@@ -104,12 +104,14 @@ const Results = () => {
 
       setLoading(true);
       try {
+        const vari = "localhost" || process.meta.env.BACKEND_URL;
+
         const response = await axios.get<{
           statusCode: number;
           data: ResultsResponse;
           message: string;
           success: number;
-        }>("http://localhost:8080/api/v1/student/results", {
+        }>(`http://${vari}:8080/api/v1/student/results`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

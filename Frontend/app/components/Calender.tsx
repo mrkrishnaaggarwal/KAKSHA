@@ -613,7 +613,7 @@ export default function Calendar() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<'student' | 'professor' | null>(null);
-  
+  const vari = 'localhost' || process.meta.env.BACKEND_URL;
   // Determine user role from localStorage on component mount
   useEffect(() => {
     const role = localStorage.getItem("role")?.toLowerCase();
@@ -828,7 +828,7 @@ export default function Calendar() {
           // Get student timetable
           console.log("huehwgiouhewiuhguwego");
           const timetableResponse = await axios.get(
-            "http://localhost:8080/api/v1/student/timetable", 
+            `http://${vari}:8080/api/v1/student/timetable`, 
             { headers, withCredentials: true }
           );
           console.log(timetableResponse);
@@ -837,7 +837,7 @@ export default function Calendar() {
             
             // Get cancelled classes
             const cancelledClassesResponse = await axios.get(
-              "http://localhost:8080/api/v1/student/cancelled-classes", 
+              `http://${vari}:8080/api/v1/student/cancelled-classes`, 
               { headers, withCredentials: true }
             );
             
@@ -858,7 +858,7 @@ export default function Calendar() {
         } else if (userRole === "professor") {
           // Get professor timetable
           const timetableResponse = await axios.get(
-            "http://localhost:8080/api/v1/professor/timetable", 
+            `http://${vari}:8080/api/v1/professor/timetable`, 
             { headers, withCredentials: true }
           );
           

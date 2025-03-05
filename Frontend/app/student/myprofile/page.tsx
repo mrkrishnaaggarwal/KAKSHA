@@ -21,6 +21,7 @@ interface StudentProfile {
 }
 
 const StudentMyProfile: React.FC = () => {
+  const vari = "localhost" || process.meta.env.BACKEND_URL;
   const [profile, setProfile] = useState<StudentProfile | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -36,7 +37,7 @@ const StudentMyProfile: React.FC = () => {
         }
 
         const response = await axios.get(
-          "http://localhost:8080/api/v1/student/profile",
+          `http://${vari}:8080/api/v1/student/profile`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

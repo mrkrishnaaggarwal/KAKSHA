@@ -67,8 +67,8 @@ function StudentDashboard() {
   const handleViewAllHomework = () => {
     router.push("/student/announcements#homework"); // Using hash for homework section
   };
-  const API_URL =
-    process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1";
+  const vari = "localhost" || process.meta.env.BACKEND_URL;
+  const API_URL = `http://${vari}:8080/api/v1`;
 
   useEffect(() => {
     const fetchAnnouncements = async () => {

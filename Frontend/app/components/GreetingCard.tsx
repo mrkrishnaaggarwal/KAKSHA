@@ -10,7 +10,7 @@ interface StudentData {
 function GreetingCard({ name }: { name: string }) {
   const [studentName, setStudentName] = useState<string>(name);
   const [isLoading, setIsLoading] = useState(true);
-
+  const vari = "localhost" || process.meta.env.BACKEND_URL;
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -18,7 +18,7 @@ function GreetingCard({ name }: { name: string }) {
         if (!token) return;
 
         const response = await axios.get(
-          "http://localhost:8080/api/v1/student/profile",
+          `http://${vari}:8080/api/v1/student/profile`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

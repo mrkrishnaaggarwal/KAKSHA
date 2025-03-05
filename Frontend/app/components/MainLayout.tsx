@@ -128,10 +128,14 @@ const MainLayout: React.FC<MainLayoutProps> = ({
     setIsPopupActive(!isPopupActive);
   };
 
+  
+
   const handleProfileUpdate = async (formData: any): Promise<void> => {
     try {
       // Determine the API endpoint based on the user role
-      const endpoint = isProfessor ? 'http://localhost:8080/api/v1/professor/profile' : 'http://localhost:8080/api/v1/student/profile';
+      const vari = 'localhost' || process.meta.env.BACKEND_URL;
+      const endpoint = isProfessor ? `http://${vari}:8080/api/v1/professor/profile` : `http://${vari}:8080/api/v1/student/profile`;
+      // const endpoint = isProfessor ? 'http://localhost:8080/api/v1/professor/profile' : 'http://localhost:8080/api/v1/student/profile';
       const token = localStorage.getItem("token");
       // Make API call to update the profile
       // console.log(formData);

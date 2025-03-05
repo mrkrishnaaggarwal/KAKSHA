@@ -64,8 +64,9 @@ interface ApiAttendanceResponse {
 const professorApi = {
   // Get all classes for the professor
   getClasses: async (): Promise<{ data: ApiClassResponse }> => {
+    const vari = "localhost" || process.meta.env.BACKEND_URL;
     const token = localStorage.getItem("token");
-    return axios.get("http://localhost:8080/api/v1/professor/classes", {
+    return axios.get(`http://${vari}:8080/api/v1/professor/classes`, {
       headers: { Authorization: `Bearer ${token}` },
       withCredentials: true
     });
@@ -74,7 +75,8 @@ const professorApi = {
   // Get subjects for this professor/class
   getSubjectsForClass: async (classId: string): Promise<{ data: ApiSubjectsResponse }> => {
     const token = localStorage.getItem("token");
-    return axios.get(`http://localhost:8080/api/v1/professor/subjects/class/${classId}`, {
+    const vari = "localhost" || process.meta.env.BACKEND_URL;
+    return axios.get(`http://${vari}:8080/api/v1/professor/subjects/class/${classId}`, {
       headers: { Authorization: `Bearer ${token}` },
       withCredentials: true
     });
@@ -83,8 +85,9 @@ const professorApi = {
   // Get attendance data - ensure this matches your actual backend route
   getClassAttendance: async (classId: string, subject: string): Promise<{ data: ApiAttendanceResponse }> => {
     const token = localStorage.getItem("token");
+    const vari = "localhost" || process.meta.env.BACKEND_URL;
     return axios.get(
-      `http://localhost:8080/api/v1/professor/attendance/class/${classId}/subject-report?subject=${subject}`,
+      `http://${vari}:8080/api/v1/professor/attendance/class/${classId}/subject-report?subject=${subject}`,
       {
         headers: { Authorization: `Bearer ${token}` },
         withCredentials : true
