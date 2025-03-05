@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Announcement_Card from "@/app/components/Anouncement_Card";
 import Prof_Homework_Card from "@/app/components/Prof_Homework_Card";
+import { useRouter } from "next/navigation";
 import Homework_Home from "@/app/components/Homework_Home";
 import {
   AiFillHome,
@@ -123,6 +124,13 @@ const sampleHomework = [
 export default function AnnouncementsPage() {
   const [announcements] = useState(sampleAnnouncements);
   const [homeworks] = useState(sampleHomework);
+  const router = useRouter();
+  useEffect(() => {
+    if (!localStorage.getItem('token')) {
+      router.push('/login');
+      return;
+    }
+  }, [router]);
 
   const handleViewAllHomework = () => {
     // Scroll to homework section

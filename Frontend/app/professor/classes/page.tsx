@@ -1,204 +1,241 @@
 "use client";
-
-import { useState, useMemo } from "react";
-import ClassroomCard from "@/app/components/ClassRoomCard"; // Fixed component name
+import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import axios from "axios";
+import ClassroomCard from "@/app/components/ClassRoomCard";
 import StudentAttendanceModal from "@/app/components/StudentAttendanceModal";
 import {
-  HiOutlinePlus,
-  HiOutlineAcademicCap,
-  HiOutlineClipboardCheck,
   HiOutlineSearch,
+  HiOutlineClipboardCheck,
+  HiOutlineExclamationCircle,
 } from "react-icons/hi";
 
-// Add proper TypeScript interfaces
+// Interfaces for our data types
 interface ClassData {
   id: string;
-  subject: string;
-  classCode: string;
-  section: string;
-  studentsCount: number;
-  coverImage?: string;
-}
-
-interface AttendanceRecord {
-  date: string;
-  status: "present" | "absent" | "late";
+  name: string;
+  subjects: string[];
 }
 
 interface StudentData {
   id: string;
   name: string;
-  email: string;
+  rollNo: string;
+  totalClasses: number;
+  attendedClasses: number;
   attendancePercentage: number;
-  attendanceHistory: AttendanceRecord[];
 }
 
-// Sample data for classes
-const sampleClasses: ClassData[] = [
-  {
-    id: "class-101",
-    subject: "Introduction to Computer Science",
-    classCode: "CS101",
-    section: "Section A",
-    studentsCount: 35,
-    coverImage: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97",
-  },
-  {
-    id: "class-102",
-    subject: "Data Structures and Algorithms",
-    classCode: "CS201",
-    section: "Section B",
-    studentsCount: 28,
-  },
-  {
-    id: "class-103",
-    subject: "Database Management Systems",
-    classCode: "CS301",
-    section: "Section A",
-    studentsCount: 32,
-    coverImage: "https://images.unsplash.com/photo-1489875347897-49f64b51c1f8",
-  },
-  {
-    id: "class-104",
-    subject: "Operating Systems",
-    classCode: "CS302",
-    section: "Section C",
-    studentsCount: 25,
-  },
-  {
-    id: "class-105",
-    subject: "Computer Networks",
-    classCode: "CS403",
-    section: "Section A",
-    studentsCount: 30,
-    coverImage: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31",
-  },
-  {
-    id: "class-106",
-    subject: "Software Engineering",
-    classCode: "CS405",
-    section: "Section B",
-    studentsCount: 22,
-  },
-];
+interface ApiClassResponse {
+  success: number;
+  message: string;
+  data: Array<{
+    id: number;
+    name: string;
+  }>;
+  token: string;
+}
 
-// Sample student data
-const sampleStudents: StudentData[] = [
-  {
-    id: "student-1",
-    name: "John Doe",
-    email: "john.doe@university.edu",
-    attendancePercentage: 92,
-    attendanceHistory: [
-      { date: "2025-03-04", status: "present" },
-      { date: "2025-03-03", status: "present" },
-      { date: "2025-03-02", status: "present" },
-      { date: "2025-03-01", status: "absent" },
-    ],
+interface ApiSubjectsResponse {
+  success: number;
+  message: string;
+  data: {
+    subjects: string[];
+  };
+  token: string;
+}
+
+interface ApiAttendanceResponse {
+  success: number;
+  message: string;
+  data: Array<{
+    student_id: string;
+    roll_no: string;
+    first_name: string;
+    last_name: string;
+    total_classes: string;
+    classes_attended: string;
+    attendance_percentage: string;
+  }>;
+  token: string;
+}
+
+// Simple API service
+const professorApi = {
+  // Get all classes for the professor
+  getClasses: async (): Promise<{ data: ApiClassResponse }> => {
+    const token = localStorage.getItem("token");
+    return axios.get("http://localhost:8080/api/v1/professor/classes", {
+      headers: { Authorization: `Bearer ${token}` },
+      withCredentials: true
+    });
   },
-  {
-    id: "student-2",
-    name: "Jane Smith",
-    email: "jane.smith@university.edu",
-    attendancePercentage: 85,
-    attendanceHistory: [
-      { date: "2025-03-04", status: "present" },
-      { date: "2025-03-03", status: "late" },
-      { date: "2025-03-02", status: "present" },
-      { date: "2025-03-01", status: "present" },
-    ],
+  
+  // Get subjects for this professor/class
+  getSubjectsForClass: async (classId: string): Promise<{ data: ApiSubjectsResponse }> => {
+    const token = localStorage.getItem("token");
+    return axios.get(`http://localhost:8080/api/v1/professor/subjects/class/${classId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+      withCredentials: true
+    });
   },
-  {
-    id: "student-3",
-    name: "Michael Johnson",
-    email: "michael.j@university.edu",
-    attendancePercentage: 68,
-    attendanceHistory: [
-      { date: "2025-03-04", status: "absent" },
-      { date: "2025-03-03", status: "present" },
-      { date: "2025-03-02", status: "late" },
-      { date: "2025-03-01", status: "present" },
-    ],
-  },
-  {
-    id: "student-4",
-    name: "Emily Williams",
-    email: "emily.w@university.edu",
-    attendancePercentage: 95,
-    attendanceHistory: [
-      { date: "2025-03-04", status: "present" },
-      { date: "2025-03-03", status: "present" },
-      { date: "2025-03-02", status: "present" },
-      { date: "2025-03-01", status: "present" },
-    ],
-  },
-  {
-    id: "student-5",
-    name: "Daniel Brown",
-    email: "daniel.b@university.edu",
-    attendancePercentage: 73,
-    attendanceHistory: [
-      { date: "2025-03-04", status: "late" },
-      { date: "2025-03-03", status: "absent" },
-      { date: "2025-03-02", status: "present" },
-      { date: "2025-03-01", status: "present" },
-    ],
-  },
-];
+
+  // Get attendance data - ensure this matches your actual backend route
+  getClassAttendance: async (classId: string, subject: string): Promise<{ data: ApiAttendanceResponse }> => {
+    const token = localStorage.getItem("token");
+    return axios.get(
+      `http://localhost:8080/api/v1/professor/attendance/class/${classId}/subject-report?subject=${subject}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+        withCredentials : true
+      }
+    );
+  }
+};
 
 export default function ClassesPage() {
-  const [classes] = useState<ClassData[]>(sampleClasses);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  // State with proper type annotations
+  const [classes, setClasses] = useState<ClassData[]>([]);
+  const [students, setStudents] = useState<StudentData[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedClass, setSelectedClass] = useState<ClassData | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [isCreatingClass, setIsCreatingClass] = useState(false);
+  const [selectedSubject, setSelectedSubject] = useState<string>("");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isStudentsLoading, setIsStudentsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [studentsError, setStudentsError] = useState<string | null>(null);
+  const [classSubjectsLoading, setClassSubjectsLoading] = useState<{[key: string]: boolean}>({});
+  const router = useRouter();
 
-  // Filter classes based on search query
-  const filteredClasses = useMemo(() => {
-    if (!searchQuery.trim()) return classes;
+  useEffect(() => {
+    if (!localStorage.getItem('token')) {
+      router.push('/login');
+    }
+  }, [router]);
+  // Fetch classes when component mounts
+  useEffect(() => {
+    fetchClasses();
+  }, []);
 
-    const query = searchQuery.toLowerCase();
-    return classes.filter(
-      (classItem) =>
-        classItem.subject.toLowerCase().includes(query) ||
-        classItem.classCode.toLowerCase().includes(query) ||
-        classItem.section.toLowerCase().includes(query)
-    );
-  }, [classes, searchQuery]);
-
-  const handleCardClick = (classId: string) => {
-    const classData = classes.find((c) => c.id === classId);
-    if (classData) {
-      setSelectedClass(classData);
-      setIsModalOpen(true);
+  const fetchClasses = async (): Promise<void> => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const response = await professorApi.getClasses();
+      
+      if (response.data.success === 200) {
+        // Transform API data and initialize with empty subjects array
+        const initialClasses: ClassData[] = response.data.data.map(cls => ({
+          id: cls.id.toString(),
+          name: cls.name,
+          subjects: []
+        }));
+        
+        setClasses(initialClasses);
+        
+        // Fetch subjects for each class
+        initialClasses.forEach(cls => {
+          fetchSubjectsForClass(cls.id);
+        });
+      } else {
+        throw new Error(response.data.message || "Failed to fetch classes");
+      }
+    } catch (error: any) {
+      console.error("Error fetching classes:", error);
+      setError(error.message || "An error occurred while fetching classes");
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
+  const fetchSubjectsForClass = async (classId: string): Promise<void> => {
+    // Set loading state for this class
+    setClassSubjectsLoading(prev => ({ ...prev, [classId]: true }));
+    
+    try {
+      const subjectsResponse = await professorApi.getSubjectsForClass(classId);
+      
+      if (subjectsResponse.data.success === 200) {
+        const subjectsList = subjectsResponse.data.data.subjects;
+        
+        // Update the class with fetched subjects
+        setClasses(prevClasses => 
+          prevClasses.map(cls => 
+            cls.id === classId ? { ...cls, subjects: subjectsList } : cls
+          )
+        );
+      }
+    } catch (error) {
+      console.error(`Error fetching subjects for class ${classId}:`, error);
+    } finally {
+      // Clear loading state for this class
+      setClassSubjectsLoading(prev => ({ ...prev, [classId]: false }));
+    }
   };
 
-  const handleCreateClass = () => {
-    setIsCreatingClass(true);
-    // In a real app, this would open a modal or navigate to create class page
-    console.log("Creating new class...");
+  // Filter classes based on search query
+  const filteredClasses = searchQuery.trim() 
+    ? classes.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase()))
+    : classes;
+
+  const handleSubjectSelect = async (classId: string, subject: string): Promise<void> => {
+    setIsStudentsLoading(true);
+    setStudentsError(null);
+    
+    const classData = classes.find(c => c.id === classId);
+    if (!classData) return;
+    
+    setSelectedClass(classData);
+    setSelectedSubject(subject);
+    setIsModalOpen(true);
+    
+    try {
+      const attendanceResponse = await professorApi.getClassAttendance(classId, subject);
+      
+      if (attendanceResponse.data.success === 200) {
+        const transformedStudents: StudentData[] = attendanceResponse.data.data.map(student => ({
+          id: student.student_id,
+          name: `${student.first_name} ${student.last_name}`,
+          rollNo: student.roll_no,
+          totalClasses: parseInt(student.total_classes, 10),
+          attendedClasses: parseInt(student.classes_attended, 10),
+          attendancePercentage: parseFloat(student.attendance_percentage),
+        }));
+        
+        setStudents(transformedStudents);
+      } else {
+        throw new Error(attendanceResponse.data.message || "Failed to fetch attendance data");
+      }
+    } catch (error: any) {
+      console.error("Error fetching attendance data:", error);
+      setStudentsError(error.message || "An error occurred while loading attendance data");
+    } finally {
+      setIsStudentsLoading(false);
+    }
+  };
+
+  const handleCloseModal = (): void => {
+    setIsModalOpen(false);
+    setStudents([]);
+    setStudentsError(null);
+    setSelectedSubject("");
   };
 
   return (
     <div className="bg-gray-50 min-h-screen flex flex-col w-full h-screen">
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-4 py-8 w-full">
         {/* Page header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">My Classes</h1>
           <p className="text-gray-600">
-            Manage your classes and track student attendance
+            View attendance reports for your assigned classes
           </p>
         </div>
 
-        {/* Actions row */}
+        {/* Search bar */}
         <div className="flex flex-wrap justify-between items-center mb-8">
-          <div className="flex space-x-2 mb-4 sm:mb-0"></div>
-
           <div className="relative w-full md:w-auto">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <HiOutlineSearch className="text-gray-400" />
@@ -214,18 +251,39 @@ export default function ClassesPage() {
         </div>
 
         {/* Classes grid */}
-        {filteredClasses.length > 0 ? (
+        {isLoading ? (
+          <div className="flex justify-center items-center py-20">
+            <div className="flex flex-col items-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+              <p className="text-gray-600">Loading classes...</p>
+            </div>
+          </div>
+        ) : error ? (
+          <div className="text-center py-16 bg-white rounded-lg border border-gray-200">
+            <HiOutlineExclamationCircle size={48} className="mx-auto text-red-500 mb-4" />
+            <h3 className="text-xl font-medium text-gray-800 mb-2">
+              Error Loading Classes
+            </h3>
+            <p className="text-gray-600 mb-6">{error}</p>
+            <button
+              onClick={fetchClasses}
+              className="inline-flex items-center text-white bg-blue-600 border-0 py-2 px-6 focus:outline-none hover:bg-blue-700 rounded"
+            >
+              Try Again
+            </button>
+          </div>
+        ) : filteredClasses.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredClasses.map((classItem) => (
               <ClassroomCard
                 key={classItem.id}
                 id={classItem.id}
-                subject={classItem.subject}
-                classCode={classItem.classCode}
-                section={classItem.section}
-                studentsCount={classItem.studentsCount}
-                coverImage={classItem.coverImage}
-                onCardClick={handleCardClick}
+                subjects={classItem.subjects}
+                isLoadingSubjects={!!classSubjectsLoading[classItem.id]}
+                classCode={classItem.name}
+                section={classItem.name}
+                studentsCount={0}
+                onSubjectSelect={handleSubjectSelect}
               />
             ))}
           </div>
@@ -252,18 +310,11 @@ export default function ClassesPage() {
               className="mx-auto text-gray-400 mb-4"
             />
             <h3 className="text-xl font-medium text-gray-800 mb-2">
-              No Classes Yet
+              No Classes Available
             </h3>
             <p className="text-gray-600 mb-6">
-              Create your first class to get started
+              You don't have any classes assigned yet
             </p>
-            <button
-              onClick={handleCreateClass}
-              className="inline-flex items-center text-white bg-blue-600 border-0 py-2 px-6 focus:outline-none hover:bg-blue-700 rounded"
-            >
-              <HiOutlinePlus className="mr-1.5" />
-              Create Class
-            </button>
           </div>
         )}
 
@@ -273,9 +324,11 @@ export default function ClassesPage() {
             isOpen={isModalOpen}
             onClose={handleCloseModal}
             classId={selectedClass.id}
-            subject={selectedClass.subject}
-            section={selectedClass.section}
-            students={sampleStudents} // In a real app, you would fetch students for the specific class
+            subject={selectedSubject}
+            section={selectedClass.name}
+            students={students}
+            isLoading={isStudentsLoading}
+            error={studentsError}
           />
         )}
       </div>

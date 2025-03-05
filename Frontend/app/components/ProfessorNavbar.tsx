@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname ,useRouter} from "next/navigation";
 import { RiHome3Line } from "react-icons/ri";
 import {
   IoBarChartOutline,
@@ -13,10 +13,30 @@ import { AiOutlineSchedule } from "react-icons/ai";
 import { CiBookmarkCheck } from "react-icons/ci";
 import { CgProfile } from "react-icons/cg";
 import logo from "@/public/logo.jpg";
+import axios from "axios";
 
 function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
 
+  const handleLogout = async () => {
+    // Clear authentication tokens and cookies
+    await axios.post('http://localhost:8080/api/v1/professor/logout', null, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+        withCredentials: true
+    })
+    .then(response => {
+        console.log('Logout successful');
+    })
+    .catch(error => {
+        console.error('Logout error:', error);
+    });
+    
+    localStorage.removeItem('role');
+    localStorage.removeItem('token');
+    // Redirect to login page
+    router.push('/login');
+    };
   const links = [
     { href: "/professor/dashboard", label: "Dashboard", icon: <RiHome3Line /> },
     {
@@ -67,7 +87,7 @@ function Navbar() {
       </nav>
       <div className="flex flex-col justify-end flex-1 w-4/5 min-w-fit">
         <div>
-          <Link
+          {/* <Link
             href="/help"
             className={
               "text-base  px-2 py-1 rounded-lg text-black hover:bg-gray-300 w-full flex items-center gap-2"
@@ -75,8 +95,9 @@ function Navbar() {
           >
             <IoHelpCircleOutline />
             Help
-          </Link>
+          </Link> */}
           <Link
+          onClick={handleLogout}
             href="/logout"
             className={
               "text-base  px-2 py-1 rounded-lg text-red-600 w-full flex items-center gap-2 hover:bg-gray-300"

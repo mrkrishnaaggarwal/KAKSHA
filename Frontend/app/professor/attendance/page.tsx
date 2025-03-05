@@ -5,7 +5,7 @@ import AttendanceStats from '@/app/components/Prof_Attendance_Stats';
 import AttendanceForm from '@/app/components/Prof_Attendance_Mark';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
-
+import { useRouter } from 'next/navigation';
 // Type definitions for API responses and component props
 interface ClassData {
   timetable_id: number;
@@ -61,6 +61,7 @@ const AttendancePage = () => {
   const [selectedClassInfo, setSelectedClassInfo] = useState<ClassData | null>(null);
   const [students, setStudents] = useState<Student[]>([]);
   const [attendance, setAttendance] = useState<StudentAttendance[]>([]);
+  const router = useRouter();
   
   // UI state
   const [searchTerm, setSearchTerm] = useState('');
@@ -74,7 +75,11 @@ const AttendancePage = () => {
   
   // Sample attendance data for calendar display
   const attendanceData: AttendanceData = {};
-
+  useEffect(() => {
+    if (!localStorage.getItem('token')) {
+      router.push('/login');
+    }
+  }, [router]);
   // Format date as YYYY-MM-DD for API calls
   useEffect(() => {
     if (selectedDate) {

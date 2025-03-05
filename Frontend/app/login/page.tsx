@@ -45,6 +45,7 @@ const page = () => {
         console.log(response);
         if (response.status === 200) {
           localStorage.setItem('token', response.data.data.tokens.accessToken); 
+          localStorage.setItem('role','student');
           router.push('/student/dashboard');
         } else {
           alert('Login failed. Please check your credentials.');
@@ -68,6 +69,7 @@ const page = () => {
 
         if (response.status === 200) {
           localStorage.setItem('token', response.data.data.tokens.accessToken);  
+          localStorage.setItem('role','professor');
           router.push('/professor/dashboard');
         } else {
           alert('Login failed. Please check your credentials.');

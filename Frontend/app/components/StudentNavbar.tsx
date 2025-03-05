@@ -75,22 +75,33 @@ import { CgProfile } from "react-icons/cg";
 import { FaRegCalendarCheck } from "react-icons/fa";
 import Image from 'next/image';
 import logo from '@/public/logo.jpg';
+import axios from 'axios';
 // import Cookies from 'js-cookie';
 
 const StudentSidebar = () => {
     const pathname = usePathname(); 
     const router = useRouter();
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
         // Clear authentication tokens and cookies
-        // Cookies.remove('refreshToken');
+        await axios.post('http://localhost:8080/api/v1/student/logout', null, {
+            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+            withCredentials: true
+        })
+        .then(response => {
+            console.log('Logout successful');
+        })
+        .catch(error => {
+            console.error('Logout error:', error);
+        });
+        
+        localStorage.removeItem('role');
         localStorage.removeItem('token');
-
         // Redirect to login page
         router.push('/login');
-    };
+        };
 
-    const navItems = [
+        const navItems = [
         { href: "/student/dashboard", label: "Dashboard", icon: <RiHome3Line /> },
         { href: "/student/announcements", label: "Announcements", icon: <GrAnnounce /> },
         { href: "/student/attendance", label: "Attendance", icon: <FaRegCalendarCheck /> },
@@ -119,10 +130,10 @@ const StudentSidebar = () => {
             </nav>
             <div className="flex flex-col justify-end flex-1 w-4/5 min-w-fit">
                 <div>
-                    <Link href="/help" className={`text-base px-2 py-1 rounded-lg w-full flex items-center gap-2 ${pathname === '/help' ? 'bg-neutral-200 text-[#6A2CFF]' : 'hover:bg-gray-300'
+                    {/* <Link href="/help" className={`text-base px-2 py-1 rounded-lg w-full flex items-center gap-2 ${pathname === '/help' ? 'bg-neutral-200 text-[#6A2CFF]' : 'hover:bg-gray-300'
                                 }`}>
                         <IoHelpCircleOutline /> Help
-                    </Link>
+                    </Link> */}
                     <button 
                         onClick={handleLogout} 
                         className="text-base text-red-600 hover:bg-gray-300 px-2 py-1 rounded-lg w-full flex items-center gap-2"

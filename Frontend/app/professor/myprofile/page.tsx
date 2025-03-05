@@ -1,39 +1,19 @@
+'use client'
 import React from 'react'
 // import axios from 'axios';
 // import { useEffect, useState } from 'react';
 import MainLayout from '../../components/MainLayout';
 // import Sidebar from '../Components/StudentSidebar';
 // import Topbar from '../Components/Topbar';
-
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 const StudentMyProfile = () => {
-
-//   if(!localStorage.getItem("token")){
-//     console.log("you are not logged in");
-//     return (<></>)
-// }
-//   const [userData, setUserData] = useState(null);
-//   const [error, setError] = useState(null);
-    
-//   useEffect(() => {
-//     const fetchUserData = async () => {
-//         try {
-//             const response = await axios.get("http://localhost:3000/api/v1/student/myprofile", {
-//                 headers : {
-//                     Authorization : "Bearer "+ localStorage.getItem("token")
-//                 }
-//             });
-//             setUserData(response.data);
-//             console.log(response.data);
-//         } catch (e) {
-//             setError('Error fetching user data');
-//             console.error(e);
-            
-//         }
-//       }
-//       fetchUserData();
-//     },[]);
-    
-    
+  const router = useRouter();
+  useEffect(() => {
+    if (!localStorage.getItem('token')) {
+      router.push('/login');
+    }
+  }, [router]);    
   return (
     <div className="flex-1 min-h-screen overflow-auto">
     {/* <Sidebar /> */}
