@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Announcement_Card from "@/app/components/Anouncement_Card";
 import Prof_Homework_Card from "@/app/components/Prof_Homework_Card";
+import { Box } from '@mui/material';
 import Homework_Home from "@/app/components/Homework_Home";
 import {
   AiFillHome,
@@ -13,6 +14,7 @@ import {
   AiFillClockCircle,
 } from "react-icons/ai";
 import Home from "@/app/page";
+import AnnouncementBox from "@/app/components/AnnouncementBox";
 
 const sampleAnnouncements = [
   {
@@ -147,8 +149,8 @@ export default function AnnouncementsPage() {
   return (
     <div className="flex-1 bg-gray-50 min-h-screen overflow-auto">
       <div className="flex max-w-7xl mx-auto">
-        {/* Main content area */}
-        <div className="flex-1 px-4 py-6 relative">
+        {/* Main content area - reduce right padding */}
+        <div className="flex-1 px-4 pr-2 py-6 relative">
           {/* Announcements section with its own sticky header */}
           <div className="mb-16">
             {/* Announcements sticky header */}
@@ -235,9 +237,20 @@ export default function AnnouncementsPage() {
           </div>
         </div>
 
-        {/* Right sidebar */}
-        <div className="w-64 pl-4 py-6 hidden md:block">
+        {/* Right sidebar - increase width and reduce left padding */}
+        <div className="w-96 md:w-[400px] lg:w-[30%] pl-2 py-6 hidden md:block overflow-auto">
           <div className="sticky top-6">
+            {/* AnnouncementBox */}
+            <AnnouncementBox
+              classId="class-123"
+              teacher={{
+                name: "Professor Smith",
+                avatar: "/images/avatar-placeholder.jpg"
+              }}
+              actionUrl="/api/announcements/create"
+            />
+            
+            {/* Rest of sidebar content */}
             <div className="bg-white rounded-lg border border-gray-200 shadow-sm mt-4 p-4">
               <h3 className="font-medium text-gray-900 mb-3">
                 Upcoming Events
