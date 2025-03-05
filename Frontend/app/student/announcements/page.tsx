@@ -15,6 +15,39 @@ export default function AnnouncementsPage() {
   
   const router = useRouter();
   
+  const scrollToSection = () => {
+    // Get the hash from the URL (e.g., #homework-assignments)
+    const hash = window.location.hash;
+    
+    if (hash && !loading) {
+      // Remove the # character
+      const id = hash.replace('#', '');
+      
+      // Find the element and scroll to it
+      const element = document.getElementById(id);
+      if (element) {
+        // Add a small delay to ensure the element is fully rendered
+        setTimeout(() => {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+      }
+    }
+  };
+
+  // Add this effect to handle URL hash changes
+  useEffect(() => {
+    // Listen for hash changes
+    window.addEventListener('hashchange', scrollToSection);
+    
+    // Initial check for hash when component mounts
+    scrollToSection();
+    
+    // Cleanup
+    return () => {
+      window.removeEventListener('hashchange', scrollToSection);
+    };
+  }, [loading]); // Re-run when loading state changes
+
   useEffect(() => {
     // Check for authentication token
     const token = localStorage.getItem('token');
@@ -76,13 +109,7 @@ export default function AnnouncementsPage() {
   
   const handleViewAllHomework = () => {
     // Scroll to homework section
-    window.scrollTo({
-      top:
-        (
-          document.querySelector(
-            ".space-y-6.max-w-3xl.pt-4.pb-16"
-          ) as HTMLElement
-        )?.offsetTop || 0,
+    document.getElementById("homework-assignments")?.scrollIntoView({
       behavior: "smooth",
     });
   };
@@ -192,7 +219,7 @@ export default function AnnouncementsPage() {
               <div className="border-t border-gray-200 mb-8"></div>
 
               {/* Homework section - Enhanced styling */}
-              <div>
+              <div id="homework-assignments">
                 <div className="sticky top-0 z-10 pt-6 pb-4 bg-gray-50 backdrop-blur-sm bg-opacity-80 shadow-sm transition-all duration-200">
                   <div className="pb-4">
                     <div className="flex items-center">

@@ -1057,7 +1057,7 @@ export default function Calendar() {
           </div>
         )}
         
-        <div className="px-3 py-2 max-h-[320px] overflow-y-auto">
+        <div className="px-3 py-2 max-h-[340px] overflow-y-auto">
           {classes.length === 0 ? (
             <p className="text-sm text-gray-500 py-4 text-center">
               No classes scheduled for this day

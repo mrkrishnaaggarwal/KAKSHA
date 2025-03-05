@@ -10,7 +10,7 @@ class ProfessorService {
     this.professorModel = new ProfessorModel();
     this.studentModel = new StudentModel();
     this.resultModel = new ResultModel();
-    this.HomeWorkModel = new HomeWorkModel();
+    this.homeWorkModel = new HomeWorkModel();
     console.log("[ProfessorService] Initialized with Professor Model");
   }
 
@@ -109,7 +109,7 @@ class ProfessorService {
       };
 
       console.log("[ProfessorService] Calling model createHomework method");
-      const response = await this.HomeWorkModel.createHomework(
+      const response = await this.homeWorkModel.createHomework(
         homeworkToCreate
       );
 
@@ -135,7 +135,7 @@ class ProfessorService {
       console.log(
         "[ProfessorService] Calling model getProfessorClasses method"
       );
-      const response = await this.HomeWorkModel.getProfessorClasses(
+      const response = await this.homeWorkModel.getProfessorClasses(
         professorId
       );
 
@@ -165,7 +165,7 @@ class ProfessorService {
       console.log(
         "[ProfessorService] Calling model getProfessorHomework method"
       );
-      const response = await this.homeworkModel.getProfessorHomework(
+      const response = await this.homeWorkModel.getProfessorHomework(
         professorId
       );
 
