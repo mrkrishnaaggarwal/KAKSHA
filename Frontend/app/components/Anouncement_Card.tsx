@@ -142,7 +142,7 @@ export default function Announcement_Card({
       )}
 
       {/* Card footer with actions */}
-      <div className="px-4 py-3 border-t border-gray-100 flex gap-4">
+      {/* <div className="px-4 py-3 border-t border-gray-100 flex gap-4">
         <button className="flex items-center gap-1.5 text-gray-600 hover:text-gray-900 text-sm">
           <FaRegCommentAlt size={15} />
           <span>{commentsCount} Comments</span>
@@ -154,7 +154,7 @@ export default function Announcement_Card({
           <RiShareForwardLine size={16} />
           <span>Share</span>
         </button>
-      </div>
+      </div> */}
     </div>
   );
 }

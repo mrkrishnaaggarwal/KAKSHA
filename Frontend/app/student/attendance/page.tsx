@@ -272,7 +272,7 @@ export default function AttendancePage() {
 
                   {/* Enhanced Calendar Grid */}
                   <div className="grid grid-cols-7 gap-2 md:gap-3">
-                    {["S", "M", "T", "W", "T", "F", "S"].map((day) => (
+                    {["S", "M", "T", "W", "Th", "F", "Sa"].map((day) => (
                       <div
                         key={day}
                         className="text-center text-sm font-medium text-gray-500 mb-2"
