@@ -81,10 +81,10 @@ import axios from 'axios';
 const StudentSidebar = () => {
     const pathname = usePathname(); 
     const router = useRouter();
-
+    const vari = 'localhost' || process.meta.env.BACKEND_URL;
     const handleLogout = async () => {
         // Clear authentication tokens and cookies
-        await axios.post('http://localhost:8080/api/v1/student/logout', null, {
+        await axios.post(`http://${vari}:8080/api/v1/student/logout`, null, {
             headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
             withCredentials: true
         })

@@ -127,7 +127,7 @@ const HomeworkSectionProfessor: React.FC = () => {
   const [homeworks, setHomeworks] = useState<Homework[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
+  const vari = "localhost" || process.meta.env.BACKEND_URL;
   useEffect(() => {
     fetchHomeworks();
   }, []);
@@ -137,7 +137,7 @@ const HomeworkSectionProfessor: React.FC = () => {
       const token = localStorage.getItem('token');
       if (!token) return;
 
-      const response = await axios.get('http://localhost:8080/api/v1/professor/homework', {
+      const response = await axios.get(`http://${vari}:8080/api/v1/professor/homework`, {
         headers: {
           Authorization: `Bearer ${token}`
         },

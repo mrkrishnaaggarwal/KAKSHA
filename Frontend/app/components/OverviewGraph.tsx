@@ -16,7 +16,7 @@ function OverviewGraph() {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-
+  const vari = "localhost" || process.meta.env.BACKEND_URL;
   interface DataPoint {
     subject: string;
     Performance: number;
@@ -34,7 +34,7 @@ function OverviewGraph() {
         // Fetch results for performance data
         console.log("📊 Fetching results data...");
         const resultsResponse = await axios.get(
-          "http://localhost:8080/api/v1/student/results",
+          `http://${vari}:8080/api/v1/student/results`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -56,7 +56,7 @@ function OverviewGraph() {
         // Fetch attendance data
         console.log("📋 Fetching attendance data...");
         const attendanceResponse = await axios.get(
-          "http://localhost:8080/api/v1/student/attendance",
+          `http://${vari}:8080/api/v1/student/attendance`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

@@ -44,6 +44,7 @@ const AnnouncementBox: React.FC<PostProps> = ({ teacher }) => {
   }, [activePostType]);
 
   // Function to fetch classes taught by the professor
+  const vari = "localhost" || process.meta.env.BACKEND_URL;
   const fetchClasses = async () => {
     setLoading(true);
     setError(null);
@@ -54,8 +55,7 @@ const AnnouncementBox: React.FC<PostProps> = ({ teacher }) => {
         setError("Authentication token not found");
         return;
       }
-
-      const response = await axios.get('http://localhost:8080/api/v1/professor/classes', {
+      const response = await axios.get(`http://${vari}:8080/api/v1/professor/classes`, {
         headers: {
           Authorization: `Bearer ${token}`
         },
@@ -88,7 +88,7 @@ const AnnouncementBox: React.FC<PostProps> = ({ teacher }) => {
         return;
       }
 
-      const response = await axios.get(`http://localhost:8080/api/v1/professor/subjects/class/${classId}`, {
+      const response = await axios.get(`http://${vari}:8080/api/v1/professor/subjects/class/${classId}`, {
         headers: {
           Authorization: `Bearer ${token}`
         },
@@ -127,7 +127,7 @@ const AnnouncementBox: React.FC<PostProps> = ({ teacher }) => {
       }
 
       const response = await axios.post(
-        'http://localhost:8080/api/v1/professor/announcements',
+        `http://${vari}:8080/api/v1/professor/announcements`,
         data,
         {
           headers: {
@@ -168,7 +168,7 @@ const AnnouncementBox: React.FC<PostProps> = ({ teacher }) => {
       }
 
       const response = await axios.post(
-        'http://localhost:8080/api/v1/professor/homework',
+        `http://${vari}:8080/api/v1/professor/homework`,
         data,
         {
           headers: {
@@ -209,7 +209,7 @@ const AnnouncementBox: React.FC<PostProps> = ({ teacher }) => {
       }
 
       const response = await axios.post(
-        'http://localhost:8080/api/v1/professor/cancel-class',
+        `http://${vari}:8080/api/v1/professor/cancel-class`,
         data,
         {
           headers: {

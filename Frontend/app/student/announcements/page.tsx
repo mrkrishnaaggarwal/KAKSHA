@@ -12,6 +12,7 @@ export default function AnnouncementsPage() {
   const [homeworks, setHomeworks] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const vari = "localhost" || process.meta.env.BACKEND_URL;
 
   const router = useRouter();
 
@@ -73,7 +74,7 @@ export default function AnnouncementsPage() {
 
         // Fetch announcements
         const announcementsResponse = await axios.get(
-          "http://localhost:8080/api/v1/student/announcement",
+          `http://${vari}:8080/api/v1/student/announcement`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -84,7 +85,7 @@ export default function AnnouncementsPage() {
 
         // Fetch homeworks
         const homeworksResponse = await axios.get(
-          "http://localhost:8080/api/v1/student/homework",
+          `http://${vari}:8080/api/v1/student/homework`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

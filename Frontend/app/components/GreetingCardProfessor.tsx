@@ -31,7 +31,7 @@ interface ProfessorData {
 function GreetingCardProfessor() {
   const [professorName, setProfessorName] = useState<string>("Professor");
   const [isLoading, setIsLoading] = useState(true);
-
+  const vari = "localhost" || process.meta.env.BACKEND_URL;
   useEffect(() => {
     const fetchProfessorData = async () => {
       try {
@@ -39,7 +39,7 @@ function GreetingCardProfessor() {
         if (!token) return;
 
         const response = await axios.get<{ data: ProfessorData, success: boolean }>
-          ('http://localhost:8080/api/v1/professor/profile', {
+          (`http://${vari}:8080/api/v1/professor/profile`, {
             headers: {
               Authorization: `Bearer ${token}`
             },

@@ -38,7 +38,7 @@ export default function AnnouncementsPage() {
   const [homeworks, setHomeworks] = useState<Homework[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  
+  const vari = 'localhost' || process.meta.env.BACKEND_URL;
   const router = useRouter();
   
   // Add this function to scroll to the section based on hash
@@ -90,7 +90,7 @@ export default function AnnouncementsPage() {
         
         // Fetch announcements
         const announcementsResponse = await axios.get(
-          'http://localhost:8080/api/v1/professor/announcements',
+          `http://${vari}:8080/api/v1/professor/announcements`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -101,7 +101,7 @@ export default function AnnouncementsPage() {
         
         // Fetch homeworks
         const homeworksResponse = await axios.get(
-          'http://localhost:8080/api/v1/professor/homework',
+          `http://${vari}:8080/api/v1/professor/homework`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

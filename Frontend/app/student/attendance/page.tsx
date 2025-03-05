@@ -27,6 +27,7 @@ interface SubjectAttendance {
 }
 
 export default function AttendancePage() {
+  const vari = "localhost" || process.meta.env.BACKEND_URL;
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(true);
   const [dayLoading, setDayLoading] = useState<boolean>(false);
@@ -64,7 +65,7 @@ export default function AttendancePage() {
       try {
         // Fetch overall attendance statistics
         const attendanceResponse = await axios.get(
-          "http://localhost:8080/api/v1/student/attendance",
+          `http://${vari}:8080/api/v1/student/attendance`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -104,7 +105,7 @@ export default function AttendancePage() {
         // Fetch attendance for selected day
         console.log("Fetching attendance for", formatDateKey(selectedDate));
         const dayAttendanceResponse = await axios.get(
-          `http://localhost:8080/api/v1/student/day-attendance?date=${formatDateKey(
+          `http://${vari}:8080/api/v1/student/day-attendance?date=${formatDateKey(
             selectedDate
           )}`,
           {

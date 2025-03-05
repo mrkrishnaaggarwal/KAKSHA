@@ -15,7 +15,7 @@ const page = () => {
   const [isLoading, setIsLoading] = useState(false);
   // Add this with your other state variables at the top
   const [showPassword, setShowPassword] = useState(false);
-
+  const vari = 'localhost' || process.meta.env.BACKEND_URL;
   const router = useRouter();
 
   const handelClickStudent = () => {
@@ -42,7 +42,7 @@ const page = () => {
       console.log("Student");
       try {
         const response = await axios.post(
-          "http://localhost:8080/api/v1/student/login",
+          `http://${vari}:8080/api/v1/student/login`,
           {
             email,
             password,
@@ -69,7 +69,7 @@ const page = () => {
       console.log("Professor");
       try {
         const response = await axios.post(
-          "http://localhost:8080/api/v1/professor/login",
+          `http://${vari}:8080/api/v1/professor/login`,
           {
             email,
             password,

@@ -49,7 +49,7 @@ const Header: React.FC<HeaderProps> = ({
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [calculatedYearsOfService, setCalculatedYearsOfService] = useState<number | undefined>(yearsOfService);
-
+  const vari = 'localhost' || process.meta.env.BACKEND_URL;
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -60,8 +60,8 @@ const Header: React.FC<HeaderProps> = ({
         }
 
         const endpoint = isProfessor 
-          ? 'http://localhost:8080/api/v1/professor/profile'
-          : 'http://localhost:8080/api/v1/student/profile';
+          ? `http://${vari}:8080/api/v1/professor/profile`
+          : `http://${vari}:8080/api/v1/student/profile`;
 
         const response = await axios.get(endpoint, {
           headers: {

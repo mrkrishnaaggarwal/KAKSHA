@@ -50,6 +50,7 @@ interface AttendanceData {
 }
 
 const AttendancePage = () => {
+  const vari = 'localhost' || process.meta.env.BACKEND_URL;
   // Date related state
   const [selectedDate, setSelectedDate] = useState<number | null>(new Date().getDate());
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -110,7 +111,7 @@ const AttendancePage = () => {
         throw new Error('Authentication token not found');
       }
       const response = await axios.get(
-        `http://localhost:8080/api/v1/professor/attendance/classes?date=${date}`,
+        `http://${vari}:8080/api/v1/professor/attendance/classes?date=${date}`,
         {
           headers: {
             'Authorization': `Bearer ${token}`
@@ -150,7 +151,7 @@ const AttendancePage = () => {
       }
       
       const response = await axios.get(
-        `http://localhost:8080/api/v1/professor/attendance/class/${classId}/students`,
+        `http://${vari}:8080/api/v1/professor/attendance/class/${classId}/students`,
         {
           headers: {
             'Authorization': `Bearer ${token}`
@@ -241,7 +242,7 @@ const AttendancePage = () => {
       };
       
       const response = await axios.post(
-        `http://localhost:8080/api/v1/professor/attendance/timetable/${selectedClassInfo.timetable_id}/mark`,
+        `http://${vari}:8080/api/v1/professor/attendance/timetable/${selectedClassInfo.timetable_id}/mark`,
         payload,
         {
           headers: {

@@ -134,7 +134,7 @@ const AnnouncementSectionProfessor: React.FC = () => {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
+  const vari = 'localhost' || process.meta.env.BACKEND_URL;
   useEffect(() => {
     fetchAnnouncements();
   }, []);
@@ -144,7 +144,7 @@ const AnnouncementSectionProfessor: React.FC = () => {
       const token = localStorage.getItem('token');
       if (!token) return;
 
-      const response = await axios.get('http://localhost:8080/api/v1/professor/announcements', {
+      const response = await axios.get(`http://${vari}:8080/api/v1/professor/announcements`, {
         headers: {
           Authorization: `Bearer ${token}`
         },

@@ -23,6 +23,7 @@ const ProfessorMyProfile: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const vari = "localhost" || process.meta.env.BACKEND_URL;
 
   useEffect(() => {
     const fetchProfileData = async () => {
@@ -34,7 +35,7 @@ const ProfessorMyProfile: React.FC = () => {
         }
 
         const response = await axios.get(
-          "http://localhost:8080/api/v1/professor/profile",
+          `http://${vari}:8080/api/v1/professor/profile`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
