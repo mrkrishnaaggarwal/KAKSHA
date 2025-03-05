@@ -12,11 +12,11 @@ class ProfileService {
         console.log('\n[ProfileService] Validating profile update data');
 
         const schema = Joi.object({
-            first_name: Joi.string().min(2).max(100).messages({
+            firstName: Joi.string().min(2).max(100).messages({
                 'string.min': 'First name must be at least 2 characters long',
                 'string.max': 'First name cannot exceed 100 characters',
             }),
-            last_name: Joi.string().min(2).max(100).messages({
+            lastName: Joi.string().min(2).max(100).messages({
                 'string.min': 'Last name must be at least 2 characters long',
                 'string.max': 'Last name cannot exceed 100 characters',
             }),
