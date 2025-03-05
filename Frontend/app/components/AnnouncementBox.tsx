@@ -36,7 +36,7 @@ import {
     Link as LinkIcon
 } from '@mui/icons-material';
 
-type PostType = 'announcement' | 'homework';
+type PostType = 'announcement' | 'homework' | 'cancelClass';
 type AttachmentType = 'file' | 'image' | 'youtube' | 'link';
 
 interface Attachment {
@@ -67,6 +67,9 @@ const AnnouncementBox: React.FC<PostProps> = ({ classId, teacher, actionUrl }) =
     const [points, setPoints] = useState<number>(100);
     const [topic, setTopic] = useState<string>('');
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [className, setClassName] = useState<string>('');
+    const [subject, setSubject] = useState<string>('');
+    const [cancellationDate, setCancellationDate] = useState<string>('');
 
     // File upload
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -89,6 +92,9 @@ const AnnouncementBox: React.FC<PostProps> = ({ classId, teacher, actionUrl }) =
         setDueTime('');
         setPoints(100);
         setTopic('');
+        setClassName('');
+        setSubject('');
+        setCancellationDate('');
     };
 
     const handlePostTypeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -160,6 +166,10 @@ const AnnouncementBox: React.FC<PostProps> = ({ classId, teacher, actionUrl }) =
                 formData.append('dueTime', dueTime);
                 formData.append('points', points.toString());
                 formData.append('topic', topic);
+            } else if (postType === 'cancelClass') {
+                formData.append('className', className);
+                formData.append('subject', subject);
+                formData.append('cancellationDate', cancellationDate);
             }
 
             // Add attachments
@@ -218,9 +228,8 @@ const AnnouncementBox: React.FC<PostProps> = ({ classId, teacher, actionUrl }) =
             <Card 
                 sx={{ 
                     mb: 4, 
-                    maxWidth: '450px',  // Change this value to adjust width
-                    width: '100%', 
-                    mx: 'auto',
+                    width: '100%',  // Make it take full width of container
+                    // Remove the fixed maxWidth of 450px
                     borderRadius: '12px', 
                     boxShadow: '0 2px 10px rgba(0,0,0,0.08)',
                     border: '1px solid #f0f0f0',
@@ -451,6 +460,15 @@ const AnnouncementBox: React.FC<PostProps> = ({ classId, teacher, actionUrl }) =
                                                 </Typography>
                                             }
                                         />
+                                        <FormControlLabel
+                                            value="cancelClass"
+                                            control={<Radio sx={{ '&.Mui-checked': { color: '#f44336' } }} />}
+                                            label={
+                                                <Typography sx={{ fontWeight: postType === 'cancelClass' ? 500 : 400 }}>
+                                                    Cancel Class
+                                                </Typography>
+                                            }
+                                        />
                                     </RadioGroup>
                                 </Box>
 
@@ -548,6 +566,71 @@ const AnnouncementBox: React.FC<PostProps> = ({ classId, teacher, actionUrl }) =
                                     </Box>
                                 </Collapse>
 
+                                {/* Cancel Class specific fields */}
+                                <Collapse in={postType === 'cancelClass'}>
+                                    <Box sx={{ 
+                                        mb: 3, 
+                                        p: 2.5,
+                                        bgcolor: 'rgba(244, 67, 54, 0.05)', // Light red background
+                                        borderRadius: '8px',
+                                        border: '1px solid',
+                                        borderColor: 'rgba(244, 67, 54, 0.2)' // Light red border
+                                    }}>
+                                        <Typography 
+                                            variant="subtitle1" 
+                                            sx={{ mb: 2, fontWeight: 600, color: '#f44336' }} // Red text
+                                        >
+                                            Class Cancellation Details
+                                        </Typography>
+                                        
+                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                            <TextField
+                                                fullWidth
+                                                label="Class Name"
+                                                value={className}
+                                                onChange={(e) => setClassName(e.target.value)}
+                                                size="small"
+                                                name="className"
+                                                required
+                                                sx={{ 
+                                                    '& .MuiOutlinedInput-root': {
+                                                        borderRadius: '6px'
+                                                    }
+                                                }}
+                                            />
+                                            <TextField
+                                                fullWidth
+                                                label="Subject"
+                                                value={subject}
+                                                onChange={(e) => setSubject(e.target.value)}
+                                                size="small"
+                                                name="subject"
+                                                required
+                                                sx={{ 
+                                                    '& .MuiOutlinedInput-root': {
+                                                        borderRadius: '6px'
+                                                    }
+                                                }}
+                                            />
+                                            <TextField
+                                                label="Cancellation Date"
+                                                type="date"
+                                                value={cancellationDate}
+                                                onChange={(e) => setCancellationDate(e.target.value)}
+                                                InputLabelProps={{ shrink: true }}
+                                                size="small"
+                                                name="cancellationDate"
+                                                required
+                                                sx={{ 
+                                                    '& .MuiOutlinedInput-root': {
+                                                        borderRadius: '6px'
+                                                    }
+                                                }}
+                                            />
+                                        </Box>
+                                    </Box>
+                                </Collapse>
+
                                 <Divider sx={{ my: 3, borderColor: 'rgba(0,0,0,0.08)' }} />
 
                                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -586,7 +669,11 @@ const AnnouncementBox: React.FC<PostProps> = ({ classId, teacher, actionUrl }) =
                                     <Button
                                         type="submit"
                                         variant="contained"
-                                        color={postType === 'announcement' ? 'primary' : 'success'}
+                                        color={
+                                            postType === 'announcement' ? 'primary' : 
+                                            postType === 'homework' ? 'secondary' :
+                                            'error' // For cancel class
+                                        }
                                         disabled={!content.trim() || isSubmitting}
                                         endIcon={<Send />}
                                         sx={{ 
@@ -596,12 +683,17 @@ const AnnouncementBox: React.FC<PostProps> = ({ classId, teacher, actionUrl }) =
                                             py: 1,
                                             fontWeight: 500,
                                             boxShadow: 2,
+                                            bgcolor: postType === 'homework' ? '#673ab7' : 
+                                                    postType === 'cancelClass' ? '#f44336' : undefined,
                                             '&:hover': {
-                                                boxShadow: 4
+                                                boxShadow: 4,
+                                                bgcolor: postType === 'homework' ? '#5e35b1' : 
+                                                        postType === 'cancelClass' ? '#d32f2f' : undefined
                                             }
                                         }}
                                     >
-                                        {postType === 'announcement' ? 'Post' : 'Assign'}
+                                        {postType === 'announcement' ? 'Post' : 
+                                        postType === 'homework' ? 'Assign' : 'Cancel Class'}
                                     </Button>
                                 </Box>
                             </Box>
