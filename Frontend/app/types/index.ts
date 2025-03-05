@@ -42,3 +42,44 @@ export interface Student {
   batch: string;
   email: string;
 }
+
+export type PostType = 'announcement' | 'homework' | 'cancelClass';
+export type NotificationType = 'success' | 'error' | null;
+
+export interface Teacher {
+  name: string;
+  avatar: string;
+}
+
+export interface Class {
+  id: number;
+  name: string;
+}
+
+export interface Subject {
+  id: number | string;
+  name: string;
+}
+
+export interface AnnouncementData {
+  classId: string;
+  title: string;
+  content: string;
+  visibility: number;
+}
+
+export interface HomeworkData {
+  classId: string;
+  title: string;
+  content: string;
+  fileName: string;
+  fileLink: string;
+  submissionDate: string;
+  totalMarks: number;
+}
+
+export interface CancelClassData {
+  classId: string;
+  subject: string;
+  date: string;
+}
