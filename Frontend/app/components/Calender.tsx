@@ -535,6 +535,7 @@ import { FaChevronLeft, FaChevronRight, FaCalendarAlt } from "react-icons/fa";
 // Type definitions
 // -----------------------------------------------------
 type ClassDetails = {
+  id?: number;
   subject: string;
   startTime: string;
   endTime: string;
