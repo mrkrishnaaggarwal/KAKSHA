@@ -67,7 +67,7 @@ class StudentModel {
 
     async updateStudentProfile(studentId, profileData) {
         console.log('\n[ProfileModel] Updating profile for student ID:', studentId);
-        
+        console.log(profileData);
         const client = await this.pool.connect();
         
         try {
@@ -80,14 +80,14 @@ class StudentModel {
             let paramIndex = 1;
             
             // Add each field that's present in profileData
-            if (profileData.first_name !== undefined) {
+            if (profileData.firstName !== undefined) {
                 updateFields.push(`first_name = $${paramIndex++}`);
-                values.push(profileData.first_name);
+                values.push(profileData.firstName);
             }
             
-            if (profileData.last_name !== undefined) {
+            if (profileData.lastName !== undefined) {
                 updateFields.push(`last_name = $${paramIndex++}`);
-                values.push(profileData.last_name);
+                values.push(profileData.lastName);
             }
             
             if (profileData.address !== undefined) {
