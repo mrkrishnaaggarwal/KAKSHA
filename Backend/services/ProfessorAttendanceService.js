@@ -8,6 +8,61 @@ class ProfessorAttendanceService {
         console.log('[ProfessorAttendanceService] Initialized');
     }
 
+    // Get the subjects taught by this professor for a class
+    async getSubjectsForClass(professorId, classId) {
+        console.log(`[ProfessorAttendanceService] Getting subjects for professor ${professorId} and class ${classId}`);
+        
+        try {
+            if (!professorId) {
+                return new apiResponse(400, null, "Professor ID is required");
+            }
+            
+            if (!classId || isNaN(parseInt(classId))) {
+                return new apiResponse(400, null, "Valid class ID is required");
+            }
+            
+            const subjects = await this.professorAttendanceModel.getSubjectsByProfessorAndClass(
+                professorId,
+                parseInt(classId)
+            );
+            
+            if (!subjects || subjects.length === 0) {
+                return new apiResponse(404, null, "No subjects found for this professor and class");
+            }
+            
+            return new apiResponse(200, { subjects }, "Subjects found successfully");
+        } catch (error) {
+            console.error('[ProfessorAttendanceService] Error:', error);
+            return new apiResponse(500, null, "Service error occurred");
+        }
+    }
+
+    // Get attendance data for a class by subject
+    async getClassAttendanceBySubject(classId, subject) {
+        console.log(`[ProfessorAttendanceService] Getting attendance for class ${classId} and subject ${subject}`);
+        
+        try {
+            if (!classId || isNaN(parseInt(classId))) {
+                return new apiResponse(400, null, "Valid class ID is required");
+            }
+            
+            if (!subject) {
+                return new apiResponse(400, null, "Subject is required");
+            }
+            
+            const attendanceData = await this.professorAttendanceModel.getClassAttendanceBySubject(
+                parseInt(classId),
+                subject
+            );
+            
+            return new apiResponse(200, attendanceData, "Attendance data fetched successfully");
+        } catch (error) {
+            console.error('[ProfessorAttendanceService] Error:', error);
+            return new apiResponse(500, null, "Service error occurred");
+        }
+    }
+
+
     validateDateInput(dateStr) {
         const schema = Joi.string().pattern(/^\d{4}-\d{2}-\d{2}$/).required().messages({
             'string.pattern.base': 'Date must be in YYYY-MM-DD format',

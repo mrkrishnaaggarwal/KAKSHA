@@ -226,6 +226,35 @@ class StudentController {
             });
         }
     }
+
+    async logout(req, res) {
+        console.log('\n[StudentController] Logout Request');
+        
+        try {
+            // Clear the HTTP-only refresh token cookie
+            res.clearCookie('refreshToken', {
+                httpOnly: true,
+                // secure: process.env.NODE_ENV === 'production',
+                sameSite: 'strict'
+            });
+            
+            console.log('[StudentController] Successfully cleared refresh token cookie');
+            
+            return res.status(200).json({
+                success: true,
+                statusCode: 200,
+                message: "Logged out successfully",
+                data: null
+            });
+        } catch (error) {
+            console.error('[StudentController] Logout Error:', error);
+            return res.status(500).json({
+                success: false,
+                message: "An internal server error occurred",
+                data: null
+            });
+        }
+    }
 }
 
 export default StudentController;

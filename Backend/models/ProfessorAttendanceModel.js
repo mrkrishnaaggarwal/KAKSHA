@@ -14,7 +14,123 @@ class ProfessorAttendanceModel {
             ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
         });
     }
+// Get the subject for a professor and class
+// Get the subject for a professor and class - Fixed to use professor_class table
+async getSubjectByProfessorAndClass(professorId, classId) {
+    console.log(`[ProfessorAttendanceModel] Getting subject for professor ${professorId} and class ${classId}`);
+    
+    try {
+        const client = await this.pool.connect();
+        const query = `
+            SELECT subject FROM "professor_class" 
+            WHERE professor_id = $1 AND class_id = $2 
+            LIMIT 1
+        `; 
+        const response = await client.query(query, [professorId, classId]);
+        client.release();
 
+        console.log(response);
+        return response.rows.length > 0 ? response.rows[0].subject : null;
+    } catch (error) {
+        console.error('[ProfessorAttendanceModel] Database error:', error);
+        throw error;
+    }
+}
+
+// Update getSubjectByProfessorAndClass to return all subjects, not just one
+
+async getSubjectsByProfessorAndClass(professorId, classId) {
+    console.log(`[ProfessorAttendanceModel] Getting subjects for professor ${professorId} and class ${classId}`);
+    
+    try {
+        const client = await this.pool.connect();
+        const query = `
+            SELECT subject FROM "professor_class" 
+            WHERE professor_id = $1 AND class_id = $2
+        `; 
+        const response = await client.query(query, [professorId, classId]);
+        console.log(response);
+        client.release();
+
+        console.log(`Found ${response.rows.length} subjects for professor ${professorId} in class ${classId}`);
+        return response.rows.map(row => row.subject);
+    } catch (error) {
+        console.error('[ProfessorAttendanceModel] Database error:', error);
+        throw error;
+    }
+}
+
+// Get attendance data for a class and subject - Fixed table names and relationships
+async getClassAttendanceBySubject(classId, subject) {
+    console.log(`[ProfessorAttendanceModel] Getting attendance for class ${classId} and subject ${subject}`);
+    
+    try {
+        const client = await this.pool.connect();
+        // Modified query to only count actual classes where attendance was taken
+        const query = `
+            SELECT 
+                s.id as student_id,
+                s.roll_no,
+                s.first_name,
+                s.last_name,
+                (
+                    SELECT COUNT(DISTINCT CONCAT(tt2.id, '_', a_dates.date))
+                    FROM "TimeTable" tt2
+                    JOIN (
+                        SELECT DISTINCT time_table_id, date 
+                        FROM "Attendance"
+                    ) a_dates ON a_dates.time_table_id = tt2.id
+                    WHERE tt2.class_id = s.class_id AND tt2.subject = $2
+                ) as total_classes,
+                COUNT(DISTINCT CASE WHEN a.status = 'Present' THEN CONCAT(a.time_table_id, '_', a.date) END) as classes_attended,
+                CASE 
+                    WHEN (
+                        SELECT COUNT(DISTINCT CONCAT(tt2.id, '_', a_dates.date))
+                        FROM "TimeTable" tt2
+                        JOIN (
+                            SELECT DISTINCT time_table_id, date 
+                            FROM "Attendance"
+                        ) a_dates ON a_dates.time_table_id = tt2.id
+                        WHERE tt2.class_id = s.class_id AND tt2.subject = $2
+                    ) > 0 
+                    THEN ROUND(
+                        (COUNT(DISTINCT CASE WHEN a.status = 'Present' THEN CONCAT(a.time_table_id, '_', a.date) END)::numeric / 
+                        (
+                            SELECT COUNT(DISTINCT CONCAT(tt2.id, '_', a_dates.date))::numeric
+                            FROM "TimeTable" tt2
+                            JOIN (
+                                SELECT DISTINCT time_table_id, date 
+                                FROM "Attendance"
+                            ) a_dates ON a_dates.time_table_id = tt2.id
+                            WHERE tt2.class_id = s.class_id AND tt2.subject = $2
+                        )) * 100, 
+                        2
+                    )
+                    ELSE 0.00
+                END as attendance_percentage
+            FROM 
+                "Student" s
+            LEFT JOIN 
+                "TimeTable" tt ON tt.class_id = s.class_id AND tt.subject = $2
+            LEFT JOIN 
+                "Attendance" a ON a.time_table_id = tt.id AND a.student_id = s.id
+            WHERE 
+                s.class_id = $1
+            GROUP BY 
+                s.id
+            ORDER BY 
+                s.roll_no
+        `;
+
+        const result = await client.query(query, [classId, subject]);
+        client.release();
+        
+        return result.rows;
+    } catch (error) {
+        console.error('[ProfessorAttendanceModel] Database error:', error);
+        throw error;
+    }
+}
     async getClassesOnDate(professorId, date) {
         console.log(`[ProfessorAttendanceModel] Getting classes for professor ID ${professorId} on date ${date}`);
         const client = await this.pool.connect();

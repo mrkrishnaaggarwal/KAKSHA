@@ -255,6 +255,43 @@ class ProfessorController {
       });
     }
   }
+
+  async logout(req, res) {
+    console.log("\n[ProfessorController] Logout Request:", {
+      userId: req.user?.id,
+      timestamp: new Date().toISOString(),
+    });
+
+    try {
+      // Clear the HTTP-only refresh token cookie
+      res.clearCookie("refreshToken", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict"
+      });
+      
+      console.log("[ProfessorController] Successfully cleared refresh token cookie");
+      
+      return res.status(200).json({
+        success: true,
+        statusCode: 200,
+        message: "Logged out successfully",
+        data: null
+      });
+    } catch (error) {
+      console.error("[ProfessorController] Logout Error:", {
+        error: error.message,
+        stack: error.stack,
+        timestamp: new Date().toISOString(),
+      });
+      
+      return res.status(500).json({
+        success: false,
+        message: "An internal server error occurred",
+        data: null
+      });
+    }
+  }
 }
 
 export default ProfessorController;

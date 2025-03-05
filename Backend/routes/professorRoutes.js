@@ -25,6 +25,11 @@ professorRouter.post("/refresh", AuthMiddleware.refreshTokenMiddleware, (req, re
     return professorController.refresh(req, res);
 });
 
+professorRouter.post("/logout", AuthMiddleware.authenticate, (req, res) => {
+    console.log('[ProfessorRoutes] Logout route accessed');
+    return professorController.logout(req, res);
+});
+
 // Protected routes
 professorRouter.use(AuthMiddleware.authenticate);
 
@@ -89,6 +94,19 @@ professorRouter.get("/timetable", (req, res) => {
     console.log('[ProfessorRoutes] Get professor timetable route accessed');
     return professorTimeTableController.getProfessorTimeTable(req, res);
 });
+
+// This route already exists, we just need to make sure it matches what we use in frontend
+professorRouter.get('/attendance/class/:classId/subject-report', (req, res) => {
+    console.log('[ProfessorRoutes] Get class attendance by subject report route accessed');
+    return professorAttendanceController.getClassAttendanceBySubject(req, res);
+});
+
+// Also add the subjects route if not already there
+professorRouter.get('/subjects/class/:classId', (req, res) => {
+    console.log('[ProfessorRoutes] Get subjects for class route accessed');
+    return professorAttendanceController.getSubjectsForClass(req, res);
+});
+
 console.log('[ProfessorRoutes] Routes initialized successfully');
 
 export default professorRouter;

@@ -24,6 +24,15 @@ studentRouter.post(
     (req, res) => studentController.refresh(req, res)
 );
 
+studentRouter.post(
+    "/logout",
+    AuthMiddleware.authenticate, // Optional: keep this if you want to ensure the user is logged in
+    (req, res) => {
+        console.log('[StudentRoutes] Logout route accessed');
+        return studentController.logout(req, res);
+    }
+);
+
 // ===================================
 // Protected Routes
 // ===================================

@@ -6,6 +6,96 @@ class ProfessorAttendanceController {
         console.log('[ProfessorAttendanceController] Initialized');
     }
 
+    // Get subjects for a class for this professor
+    async getSubjectsForClass(req, res) {
+        console.log('\n[ProfessorAttendanceController] Get subjects for class:', {
+            classId: req.params.classId,
+            professorId: req.user.id,
+            timestamp: new Date().toISOString()
+        });
+
+        try {
+            const classId = req.params.classId;
+            const professorId = req.user.id; 
+            
+            if (!classId) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Class ID parameter is required",
+                    data: null
+                });
+            }
+            
+            const response = await this.professorAttendanceService.getSubjectsForClass(
+                professorId, 
+                classId
+            );
+            
+            return res.status(response.statusCode).json(response);
+        } catch (error) {
+            console.error('[ProfessorAttendanceController] Error:', {
+                error: error.message,
+                stack: error.stack,
+                timestamp: new Date().toISOString()
+            });
+            
+            return res.status(500).json({
+                success: false,
+                message: "Internal server error",
+                data: null
+            });
+        }
+    }
+
+    // Get attendance report for a class with subject
+    async getClassAttendanceBySubject(req, res) {
+        console.log('\n[ProfessorAttendanceController] Get class attendance by subject:', {
+            classId: req.params.classId,
+            subject: req.query.subject,
+            timestamp: new Date().toISOString()
+        });
+
+        try {
+            const { classId } = req.params;
+            const { subject } = req.query;
+            
+            if (!classId) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Class ID parameter is required",
+                    data: null
+                });
+            }
+            
+            if (!subject) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Subject parameter is required",
+                    data: null
+                });
+            }
+            
+            const response = await this.professorAttendanceService.getClassAttendanceBySubject(
+                classId, 
+                subject
+            );
+            
+            return res.status(response.statusCode).json(response);
+        } catch (error) {
+            console.error('[ProfessorAttendanceController] Error:', {
+                error: error.message,
+                stack: error.stack,
+                timestamp: new Date().toISOString()
+            });
+            
+            return res.status(500).json({
+                success: false,
+                message: "Internal server error",
+                data: null
+            });
+        }
+    }
+
     async getClassesOnDate(req, res) {
         console.log('\n[ProfessorAttendanceController] Get classes on date request:', {
             professorId: req.user.id,
