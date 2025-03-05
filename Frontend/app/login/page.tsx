@@ -39,10 +39,13 @@ const page = () => {
         const response = await axios.post('http://localhost:8080/api/v1/student/login', {
           email,
           password
+        }, {
+          withCredentials: true
         });
         console.log(response);
         if (response.status === 200) {
-          localStorage.setItem('token', response.data.token); 
+          localStorage.setItem('token', response.data.data.tokens.accessToken); 
+          localStorage.setItem('role','student');
           router.push('/student/dashboard');
         } else {
           alert('Login failed. Please check your credentials.');
@@ -60,10 +63,13 @@ const page = () => {
         const response = await axios.post('http://localhost:8080/api/v1/professor/login', {
           email,
           password
+        }, {
+          withCredentials: true
         });
 
         if (response.status === 200) {
-          localStorage.setItem('token', response.data.token); 
+          localStorage.setItem('token', response.data.data.tokens.accessToken);  
+          localStorage.setItem('role','professor');
           router.push('/professor/dashboard');
         } else {
           alert('Login failed. Please check your credentials.');
