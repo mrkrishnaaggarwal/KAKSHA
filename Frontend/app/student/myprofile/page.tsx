@@ -69,7 +69,7 @@ const StudentMyProfile: React.FC = () => {
           <div className="flex flex-col items-center justify-center">
             {/* Loading spinner */}
             <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mb-6"></div>
-  
+
             {/* Loading text */}
             <h2 className="text-xl font-bold text-purple-800 mb-4">
               Loading Profile
@@ -77,7 +77,7 @@ const StudentMyProfile: React.FC = () => {
             <p className="text-gray-600 mb-8">
               Please wait while we fetch your information...
             </p>
-  
+
             {/* Skeleton loader elements */}
             <div className="w-full space-y-4">
               <div className="flex items-center space-x-3">
@@ -87,11 +87,11 @@ const StudentMyProfile: React.FC = () => {
                   <div className="h-3 bg-gray-200 rounded animate-pulse w-3/4"></div>
                 </div>
               </div>
-  
+
               <div className="h-3 bg-gray-200 rounded animate-pulse"></div>
               <div className="h-3 bg-gray-200 rounded animate-pulse"></div>
               <div className="h-3 bg-gray-200 rounded animate-pulse w-4/5"></div>
-  
+
               <div className="grid grid-cols-2 gap-4 pt-2">
                 <div>
                   <div className="h-3 bg-gray-200 rounded animate-pulse mb-2"></div>
@@ -160,7 +160,10 @@ const StudentMyProfile: React.FC = () => {
       const today = new Date();
       age = today.getFullYear() - birthDate.getFullYear();
       const monthDiff = today.getMonth() - birthDate.getMonth();
-      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      if (
+        monthDiff < 0 ||
+        (monthDiff === 0 && today.getDate() < birthDate.getDate())
+      ) {
         age--;
       }
     } catch (e) {
@@ -169,34 +172,62 @@ const StudentMyProfile: React.FC = () => {
   }
 
   return (
-    <div className="flex-1 min-h-screen overflow-auto">
-      <div className="w-[100%]">
-        <MainLayout
-          // Actual API data
-          firstName={profile.first_name}
-          lastName={profile.last_name}
-          rollNo={profile.roll_no}
-          email={profile.email}
-          address={profile.address}
-          className={profile.class_name}
-          batch={profile.batch}
-          semester={profile.semester as number}
-          dob={profile.dob}
-          
-          // Pre-populated data (these would come from API in the future)
-          gender="Male"
-          age={age}
-          bloodGroup="B+ve"
-          previousGrades="69% | B+ (Good)"
-          bestSubject="Mathematics"
-          weakestSubject="Physics"
-          parentName="Mr. Ashok Kumar Jackson"
-          parentContact="+91 9868267234"
-          parentOccupation="CEO at Fintech Software Private Limited, BBSR"
-          emergencyName="Mr. Ashok Kumar Jackson"
-          emergencyContact="+91 9868267234, +91 9868267234"
-          emergencyAddress="Plot No.81, New Colony, Lane-17, VaniVihar, Bhubaneswar"
-        />
+    <div className="flex-1 min-h-screen overflow-auto bg-gradient-to-b from-purple-100 via-white to-white">
+      <div className="max-w-7xl mx-auto px-4 py-6 md:py-8">
+        {/* Header Section */}
+        {/* <div className="bg-gradient-to-r from-purple-600 to-blue-500 rounded-t-xl shadow-md mb-6">
+          <div className="px-6 py-5">
+            <h1 className="text-white text-2xl md:text-3xl font-bold flex items-center">
+              <svg
+                className="mr-3"
+                width="28"
+                height="28"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+              Student Profile
+            </h1>
+            <p className="text-blue-100 mt-2 text-lg">
+              Personal details and information
+            </p>
+          </div>
+        </div> */}
+
+        {/* Main Layout Container - Apply consistent styling */}
+        <div className="bg-white rounded-b-xl shadow-md border border-gray-200 overflow-hidden">
+          <MainLayout
+            // Actual API data
+            firstName={profile.first_name}
+            lastName={profile.last_name}
+            rollNo={profile.roll_no}
+            email={profile.email}
+            address={profile.address}
+            className={profile.class_name}
+            batch={profile.batch}
+            semester={profile.semester as number}
+            dob={profile.dob}
+            // Pre-populated data (these would come from API in the future)
+            gender="Male"
+            age={age}
+            bloodGroup="B+ve"
+            previousGrades="69% | B+ (Good)"
+            bestSubject="Mathematics"
+            weakestSubject="Physics"
+            parentName="Mr. Ashok Kumar Jackson"
+            parentContact="+91 9868267234"
+            parentOccupation="CEO at Fintech Software Private Limited, BBSR"
+            emergencyName="Mr. Ashok Kumar Jackson"
+            emergencyContact="+91 9868267234, +91 9868267234"
+            emergencyAddress="Plot No.81, New Colony, Lane-17, VaniVihar, Bhubaneswar"
+          />
+        </div>
       </div>
     </div>
   );

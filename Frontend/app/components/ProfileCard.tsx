@@ -1,15 +1,17 @@
 import React from 'react';
-import type { ProfileCardProps } from '@/app/types';
+
+interface ProfileCardProps {
+  title: string;
+  children: React.ReactNode;
+}
 
 const ProfileCard: React.FC<ProfileCardProps> = ({ title, children }) => {
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:-translate-y-2 hover:shadow-2xl group">
-      {/* Title with full purple background */}
-      <div className="bg-purple-800 text-white font-semibold px-4 py-2 flex items-center justify-between group-hover:bg-purple-900">
-        <span>{title}</span>
+    <div className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
+      <div className="bg-gradient-to-r from-purple-600 to-blue-500 px-5 py-3">
+        <h3 className="text-lg font-semibold text-white">{title}</h3>
       </div>
-      {/* Card content */}
-      <div className="p-4">
+      <div className="p-5">
         {children}
       </div>
     </div>
