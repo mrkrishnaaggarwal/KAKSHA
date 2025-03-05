@@ -22,6 +22,6 @@ app.use(cookieParser());
 app.use("/api/v1", router);
 
 
-app.listen(port,()=>{
-    console.log(`listening to port ${port}`);
-})
+app.listen(port, '0.0.0.0', () => {
+  console.log(`Server is running on port ${port}`);
+});
