@@ -170,7 +170,7 @@ export default function AnnouncementsPage() {
     <div className="flex-1 bg-gray-50 min-h-screen overflow-auto">
       <div className="flex max-w-7xl mx-auto">
         {/* Main content area */}
-        <div className="flex-1 px-4 py-6 relative">
+        <div className="flex-1 px-4 relative">
           {/* Enhanced Loading state */}
           {loading && (
             <div className="flex flex-col justify-center items-center h-80">
@@ -366,12 +366,12 @@ export default function AnnouncementsPage() {
                       <p className="text-gray-500 mt-2">
                         Create assignments for your students using the sidebar controls
                       </p>
-                      <button
+                      {/* <button
                         className="mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md"
                         onClick={() => window.location.href = "/professor/assignments/create"}
                       >
                         Create New Assignment
-                      </button>
+                      </button> */}
                     </div>
                   )}
                 </div>
@@ -381,7 +381,7 @@ export default function AnnouncementsPage() {
         </div>
 
         {/* Right sidebar - UNCHANGED as requested */}
-        <div className="w-96 md:w-[400px] lg:w-[30%] pl-2 py-6 hidden md:block overflow-auto">
+        <div className="w-96 md:w-[400px] lg:w-[30%] pl-2 py-6 hidden md:block overflow-auto mr-4 mt-20">
           <div className="sticky top-6">
             {/* AnnouncementBox */}
             <AnnouncementBox
@@ -394,7 +394,7 @@ export default function AnnouncementsPage() {
             />
             
             {/* Rest of sidebar content */}
-            <div className="bg-white rounded-lg border border-gray-200 shadow-sm mt-4 p-4">
+            {/* <div className="bg-white rounded-lg border border-gray-200 shadow-sm mt-4 p-4">
               <h3 className="font-medium text-gray-900 mb-3">
                 Upcoming Events
               </h3>
@@ -418,7 +418,7 @@ export default function AnnouncementsPage() {
               >
                 View all events →
               </a>
-            </div>
+            </div> */}
 
             {/* Professor homework summary widget */}
             <div className="bg-white rounded-lg border border-gray-200 shadow-sm mt-4 p-4">
@@ -439,14 +439,14 @@ export default function AnnouncementsPage() {
                   <p className="text-sm font-medium text-orange-600">8</p>
                 </div>
               </div>
-              <button
+              {/* <button
                 className="w-full mt-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md"
                 onClick={() =>
                   (window.location.href = "/professor/assignments/create")
                 }
               >
                 Create New Assignment
-              </button>
+              </button> */}
             </div>
           </div>
         </div>

@@ -244,7 +244,7 @@ function StudentDashboard() {
           </div>
         </div>
         <div className="w-full lg:w-4/12 h-full">
-          <div className="sticky top-6 bg-white rounded-xl shadow-md p-7">
+          <div className="sticky top-6 bg-white rounded-xl shadow-md">
             <Calender />
           </div>
         </div>

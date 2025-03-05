@@ -38,9 +38,6 @@ Thumbs.db
 # Testing
 /coverage
 
-# Prisma
-/prisma/migrations
-
 # Uploads directory
 uploads/*
 !uploads/.gitkeep
