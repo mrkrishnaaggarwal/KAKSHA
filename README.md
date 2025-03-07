@@ -1,16 +1,16 @@
-# 🎓 BEROZGAAR Project
+# 🎓 KAKSHA Project
 
-**Welcome to the BEROZGAAR repository** – a comprehensive educational management system designed to streamline interactions between professors and students.  
+**Welcome to the KAKSHA repository** – a comprehensive educational management system designed to streamline interactions between professors and students.  
 *An all-in-one platform for academic administration including class announcements, attendance tracking, and timetable management.*
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+<!-- [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) -->
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
 
 ---
 
 ## 📚 Overview
 
-**BEROZGAAR** is a full-fledged educational management solution that bridges the gap between professors and students. It offers tools for class announcements, attendance management, timetable scheduling, and academic communications.
+**KAKSHA** is a full-fledged educational management solution that bridges the gap between professors and students. It offers tools for class announcements, attendance management, timetable scheduling, and academic communications.
 
 ---
 
@@ -45,7 +45,7 @@
 ## 📂 Project Structure
 
 ```
-BEROZGAAR/
+KAKSHA/
 ├── Backend/             # Server-side application
 │   ├── config/          # Configuration files  
 │   ├── controller/      # API controllers  
@@ -105,7 +105,7 @@ npm run dev
 
 ## 👥 Contributing
 
-We welcome contributions to further enhance BEROZGAAR!
+We welcome contributions to further enhance KAKSHA!
 
 1. Fork the repository.
 2. Create a branch for your feature (`git checkout -b feature/amazing-feature`).
