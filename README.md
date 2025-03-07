@@ -37,8 +37,8 @@
 ### Backend
 - **Node.js**: Scalable JavaScript runtime.
 - **Express.js**: Web framework supporting robust API creation.
-- **MongoDB**: NoSQL database for flexible data modeling.
-- **Multer**: For handling file uploads (if applicable).
+- **PostgreSQL**: SQL database for efficient data persistence and relational integrity with ACID compliance.
+- **Multer**: For handling file uploads.
 
 ---
 
@@ -68,7 +68,8 @@ BEROZGAAR/
 ### Prerequisites
 - **Node.js** (v14+)
 - **npm** or **yarn**
-- **MongoDB** (for backend)
+- **PostgreSQL** (for backend)
+- **Next.js** (for frontend)
 
 ### Installation
 
@@ -77,7 +78,7 @@ BEROZGAAR/
 cd Backend
 npm install
 # Create a .env file with the necessary configuration
-npm run dev
+node index.js
 ```
 
 **Frontend Setup:**
@@ -89,7 +90,7 @@ npm run dev
 
 **Access URLs:**
 - Frontend: [http://localhost:3000](http://localhost:3000)
-- Backend API: [http://localhost:5000](http://localhost:5000) *(or your configured port)*
+- Backend API: [http://localhost:8080](http://localhost:8080) *(or your configured port)*
 
 ---
 
@@ -113,12 +114,12 @@ We welcome contributions to further enhance BEROZGAAR!
 5. Open a Pull Request.
 
 ---
-
+<!-- 
 ## 📄 License
 
 This project is licensed under the **MIT License** – see the LICENSE file for more details.
 
----
+--- -->
 
 ## 📬 Contact
 
