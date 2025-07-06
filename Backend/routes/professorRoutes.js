@@ -6,6 +6,7 @@ import ProfessorAnnouncementController from "../controller/professorAnnouncement
 import ProfessorAttendanceController from '../controller/professorAttendanceController.js';
 import ProfessorTimeTableController from '../controller/professorTimeTableController.js';
 import ClassCancelledController from '../controller/classCancelledController.js';
+import CommunityController from '../controller/CommunityController.js';
 
 const professorTimeTableController = new ProfessorTimeTableController();
 const professorAttendanceController = new ProfessorAttendanceController();
@@ -13,6 +14,7 @@ const professorRouter = Router();
 const professorController = new ProfessorController();
 const professorAnnouncementController = new ProfessorAnnouncementController();
 const classCancelledController = new ClassCancelledController();
+const communityController = new CommunityController();
 
 console.log('[ProfessorRoutes] Initializing routes');
 
@@ -112,6 +114,42 @@ professorRouter.get('/subjects/class/:classId', (req, res) => {
 professorRouter.post("/cancel-class", (req, res) => {
     console.log('[ProfessorRoutes] Cancel class route accessed');
     return classCancelledController.cancelClass(req, res);
+});
+
+// Community routes
+professorRouter.get("/community/init", (req, res) => {
+    console.log('[ProfessorRoutes] Initialize community tables route accessed');
+    return communityController.initializeTables(req, res);
+});
+
+professorRouter.get("/community/posts", (req, res) => {
+    console.log('[ProfessorRoutes] Get community posts route accessed');
+    return communityController.getPosts(req, res);
+});
+
+professorRouter.post("/community/posts", (req, res) => {
+    console.log('[ProfessorRoutes] Create community post route accessed');
+    return communityController.createPost(req, res);
+});
+
+professorRouter.get("/community/posts/:postId", (req, res) => {
+    console.log('[ProfessorRoutes] Get community post details route accessed');
+    return communityController.getPost(req, res);
+});
+
+professorRouter.post("/community/posts/:postId/comments", (req, res) => {
+    console.log('[ProfessorRoutes] Create community comment route accessed');
+    return communityController.createComment(req, res);
+});
+
+professorRouter.post("/community/vote/:targetId", (req, res) => {
+    console.log('[ProfessorRoutes] Community vote route accessed');
+    return communityController.vote(req, res);
+});
+
+professorRouter.get("/community/votes", (req, res) => {
+    console.log('[ProfessorRoutes] Get user votes route accessed');
+    return communityController.getUserVotes(req, res);
 });
 
 console.log('[ProfessorRoutes] Routes initialized successfully');
