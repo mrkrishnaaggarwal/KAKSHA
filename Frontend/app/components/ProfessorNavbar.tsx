@@ -12,6 +12,7 @@ import {
 import { AiOutlineSchedule } from "react-icons/ai";
 import { CiBookmarkCheck } from "react-icons/ci";
 import { CgProfile } from "react-icons/cg";
+import { HiOutlineUsers } from "react-icons/hi2";
 import logo from "@/public/logo.jpg";
 import axios from "axios";
 
@@ -54,8 +55,8 @@ function Navbar() {
       label: "Attendance",
       icon: <CiBookmarkCheck />,
     },
+    { href: "/professor/community", label: "Community", icon: <HiOutlineUsers /> },
     { href: "/professor/myprofile", label: "My Profile", icon: <CgProfile /> },
-    // yahan aur links dal dena agar need hogi toh
   ];
 
   return (

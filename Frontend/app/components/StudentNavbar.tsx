@@ -73,6 +73,7 @@ import { IoLogOutOutline, IoHelpCircleOutline } from "react-icons/io5";
 import { GrAnnounce } from "react-icons/gr";
 import { CgProfile } from "react-icons/cg";
 import { FaRegCalendarCheck } from "react-icons/fa";
+import { HiOutlineUsers } from "react-icons/hi2";
 import Image from 'next/image';
 import logo from '@/public/logo.jpg';
 import axios from 'axios';
@@ -106,8 +107,7 @@ const StudentSidebar = () => {
         { href: "/student/announcements", label: "Announcements", icon: <GrAnnounce /> },
         { href: "/student/attendance", label: "Attendance", icon: <FaRegCalendarCheck /> },
         { href: "/student/result", label: "Results", icon: <BsFileEarmarkText /> },
-        // { href: "/student/resources", label: "Resources", icon: <IoBarChartOutline /> },
-        // { href: "/student/community", label: "Community", icon: <AiOutlineSchedule /> },
+        { href: "/student/community", label: "Community", icon: <HiOutlineUsers /> },
         { href: "/student/myprofile", label: "My Profile", icon: <CgProfile /> },
     ];
 
